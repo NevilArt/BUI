@@ -44,6 +44,13 @@ class Slider(BUI):
 		if self.ondrag != None:
 			self.ondrag()
 
+	def joy_rightclicked(self):
+		if self.onrightclicked != None:
+			self.onrightclicked()
+		else:
+			pass
+			# do reset
+
 	def drag(self,x,y):
 		if self.moveable:
 			self.pos.x += x

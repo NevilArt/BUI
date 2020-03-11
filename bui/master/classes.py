@@ -34,10 +34,34 @@ class Corner:
 
 class Range:
 	def __init__(self, minval, maxval, default):
+		self.set(minval, maxval, default)
+	def set(self, minval, maxval, default):
 		self.min = minval
 		self.max = maxval
 		self.default = default
 		self.value = default
+		self.check()
+	def check(self):
+		if self.max < self.min:
+			self.max == self.min
+		if self.min < self.default > self.max:
+			self.default = self.min
+	def reset(self):
+		self.value = self.default
+	def get_lenght(self):
+		return self.max - self.min
+	def get_negative_lenght(self):
+		s = self.min if self.min < 0 else 0
+		e = self.max if self.max < 0 else 0
+		return e - s
+	def get_posetive_length(self):
+		s = self.min if self.min > 0 else 0
+		e = self.max if self.max > 0 else 0
+		return e - s
+	def get_position_percet(self):
+		length = self.get_lenght()
+		val = self.value - self.min
+		return val / length if length > 0 else 0
 
 class Align:
 	def __init__(self,left,right,up,down,center):
@@ -82,6 +106,7 @@ class Colors:
 class MouseButton:
 	def __init__(self):
 		self.pressed = False
+		self.grab = False
 		self.pos = Vector2(0,0)
 	def delta(self,x,y):
 		return x-self.pos.x, y-self.pos.y

@@ -35,13 +35,18 @@ class BUI:
 		self.ignorechildren = False
 
 		""" Reserved for user funcions """
-		self.onclick = None
-		self.ondoubleclicked = None
-		self.onrightclicked = None
-		self.onpushed = None
-		self.onreleased = None
-		self.ondrag = None
 		self.onmove = None
+		self.onclick = None
+		self.ondoubleclick = None
+		self.onpush = None
+		self.onrelease = None
+		self.ondrag = None
+		self.onrightpush = None
+		self.onrightrelease = None
+		self.onrightclick = None
+		self.onmiddlepush = None
+		self.onmiddlerelease = None
+		self.onmiddleclick = None
 
 	def reset(self):
 		pass
@@ -122,16 +127,17 @@ class BUI:
 			graphics += c.get_graphics()
 		return graphics
 
-	def mouse_hover(self, event):
+	def mouse_hover(self, event, deep=True):
 		if self.enabled:
 			mx,my = event.mouse_region_x, event.mouse_region_y
 			x,y = self.location.x, self.location.y
 			w,h = self.size.x, self.size.y
-			self.active = self
-			for c in self.controllers:
-				if c.mouse_hover(event):
-					self.active = c if c.active == c else c.active
-					break
+			if deep:
+				self.active = self
+				for c in self.controllers:
+					if c.mouse_hover(event):
+						self.active = c if c.active == c else c.active
+						break
 			return (x < mx < x+w and y < my < y+h)
 		return False
 
@@ -161,26 +167,40 @@ class BUI:
 
 			if event.type == 'LEFTMOUSE' and self.hover:
 				if event.value == 'PRESS':
+					self.grab = True
 					self.mouse.lmb.pressed = True
 					self.mouse.lmb.pos = Vector2(x,y)
-					self.grab = True
-					self.active.pushed()
+					self.active.push()
+					self.active.mouse.lmb.grab = True
 				if event.value =='RELEASE':
-					self.mouse.lmb.pressed = False
-					self.active.released()
 					self.grab = False
-					#TODO fix drag and click issu
-					lmb_dx,lmb_dy = self.mouse.lmb.delta(x,y)
-					if lmb_dx == 0 and lmb_dy == 0:
-					#self.hover = self.mouse_hover(event)
-					#if self.hover:
-						self.active.clicked()
+					self.mouse.lmb.pressed = False
+					self.active.mouse.lmb.grab = False
+					self.active.release()
+					if self.active.mouse_hover(event,deep=False):
+						self.active.click()
+
+			if event.type == 'MIDDLEMOUSE':
+				if event.value == 'PRESS':
+					self.mouse.mmb.pressed = True
+					self.mouse.mmb.pos = Vector2(x,y)
+					self.active.middlepush()
+				if event.value =='RELEASE':
+					self.mouse.mmb.pressed = False
+					self.active.middlerelease()
+					if self.active.mouse_hover(event,deep=False):
+						self.active.middleclick()
 
 			if event.type == 'RIGHTMOUSE':
 				if event.value == 'PRESS':
 					self.mouse.rmb.pressed = True
+					self.mouse.rmb.pos = Vector2(x,y)
+					self.active.rightpush()
 				if event.value =='RELEASE':
-					self.mouse.lmb.pressed = False
+					self.mouse.rmb.pressed = False
+					self.active.rightrelease()
+					if self.active.mouse_hover(event,deep=False):
+						self.active.rightclick()
 
 			if event.type == 'MOUSEMOVE':
 				m_dx,m_dy = self.mouse.delta(x,y)
@@ -204,21 +224,36 @@ class BUI:
 			for c in self.controllers:
 				c.update()
 
-	def pushed(self):
-		if self.onpushed != None:
-			self.onpushed()
-	def released(self):
-		if self.onreleased != None:
-			self.onreleased()
-	def clicked(self):
+	def push(self):
+		if self.onpush != None:
+			self.onpush()
+	def release(self):
+		if self.onrelease != None:
+			self.onrelease()
+	def click(self):
 		if self.onclick != None:
 			self.onclick()
-	def doubleclicked(self):
-		if self.ondoubleclicked != None:
-			self.ondoubleclicked()
-	def rightclicked(self):
-		if self.onrightclicked != None:
-			self.onrightclicked()
+	def doubleclick(self):
+		if self.ondoubleclick != None:
+			self.ondoubleclick()
+	def rightpush(self):
+		if self.onrightpush != None:
+			self.onrightpush()
+	def rightrelease(self):
+		if self.onrightrelease != None:
+			self.onrightrelease()
+	def rightclick(self):
+		if self.onrightclick != None:
+			self.onrightclick()
+	def middlepush(self):
+		if self.onmiddlepush != None:
+			self.onmiddlepush()
+	def middlerelease(self):
+		if self.onmiddlerelease != None:
+			self.onmiddlerelease()
+	def middleclick(self):
+		if self.onmiddleclick != None:
+			self.onmiddleclick()
 
 	def drag(self,x,y):
 		if self.moveable:
