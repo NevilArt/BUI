@@ -1,7 +1,4 @@
 ############################################################################
-#    BsMax, 3D apps inteface simulator and tools pack for Blender
-#    Copyright (C) 2020  Naser Merati (Nevil)
-#
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -15,26 +12,20 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
-
-import bpy, gpu, bgl, blf
-from gpu_extras.batch import batch_for_shader
-from bpy.types import Operator
-from .classes import Vector2,Mouse,Keyboard,Edge,Align,Dimantion,Scale,VectorRange2
+from .classes import Vector2,Mouse,Keyboard,Edge,Align,Dimension,\
+						Scale,VectorRange2,Caption,Border
 
 class BUI:
 	def __init__(self):
 		""" Aperiance """
-		self.caption = None
+		self.caption = Caption()
 		self.icon = None
 		self.graphics = []
-
 		""" Control data """
 		self.mouse = Mouse()
 		self.kb = Keyboard()
 		self.pos = VectorRange2(0,0)
-		self.pos.limit.set(True,True)
 		self.size = VectorRange2(0,0)
-		self.size.limit.set(True,True)
 		self.location = Vector2(0,0)
 		self.offset = Vector2(0,0)
 		self.owner = None
@@ -42,9 +33,8 @@ class BUI:
 		self.controllers = []
 		self.fit = Edge(False,False,False,False)
 		self.align = Align(False,False,False,False,False)
-		self.border = Edge(0,0,0,0)
+		self.border = Border(0,0,0,0)
 		self.scale = Scale(False,True,True,True,True,5)
-		
 		""" Flags """
 		self.active = None
 		self.hover = False
@@ -55,7 +45,6 @@ class BUI:
 		self.destroy = False
 		self.ignorborder = False
 		self.ignorechildren = False
-
 		""" Reserved for user funcions """
 		self.onmove = None
 		self.onclick = None
@@ -69,6 +58,10 @@ class BUI:
 		self.onmiddlepush = None
 		self.onmiddlerelease = None
 		self.onmiddleclick = None
+		self._setup()
+
+	def _setup(self):
+		self.caption.owner = self
 
 	def reset(self):
 		pass
@@ -86,13 +79,13 @@ class BUI:
 
 			""" get allowd area """
 			border = Edge(0,0,0,0) if self.ignorborder else owner.border
-			dim = Dimantion(0,0,owner.size.x,owner.size.y)
+			dim = Dimension(Vector2(0,0),owner.size)
 			start,end,length = dim.get_start_end_length(border)
 
 			""" limit size fit to parent """
+			size.limit.set(True,True)
 			size.min.set(0,0)
 			size.max.set(owner.size.x-border.right-pos.x,owner.size.y-border.top-pos.y)
-			# size.max.set(length.x-pos.x,length.y-pos.y)
 
 			""" limit location inside of parent """
 			pos.limit.set(True,True)
@@ -112,41 +105,27 @@ class BUI:
 				size.y = length.y
 
 			""" apply alignment """
-			align = self.align
-			if align.center:
-				if not align.left and not align.right:
-					pos.x = owner.size.x/2-size.x/2
-				if not align.top and not align.bottom:
-					pos.y = owner.size.y/2-size.y/2
-			
-			if align.left and not align.right:
-				pos.x = 0
-			if align.right and not align.left:
-				pos.x = owner.size.x-size.x
+			p = self.align.location(pos,owner.size,size)
+			pos.set(p.x,p.y)
+			pos += start
 
-			if align.top and not align.bottom:
-				pos.y = owner.size.y-size.y
-			if align.bottom and not align.top:
-				pos.y = 0
-
-		x = position.x+pos.x+self.offset.x
-		y = position.y+pos.y+self.offset.y
-		w = size.x
-		h = size.y
-
-		self.location.x = x
-		self.location.y = y
-		return VectorRange2(x,y),VectorRange2(w,h)
+		self.location = position+pos+self.offset
+		return self.location,size
 
 	def get_graphics(self):
 		pos,size = self.arrange()
 		graphics = []
-		for g in self.graphics:
-			g.create_shape(pos, size, self.state)
-			graphics.append(g)
-		for c in self.controllers:
-			graphics += c.get_graphics()
+		for graphic in self.graphics:
+			graphic.create_shape(pos, size, self.state)
+			graphics.append(graphic)
+		for controller in self.controllers:
+			graphics += controller.get_graphics()
 		return graphics
+
+	def get_captions(self):
+		captions = [c.caption for c in self.controllers]
+		captions.append(self.caption)
+		return captions
 
 	def mouse_hover(self, event, deep=True):
 		if self.enabled:
@@ -176,7 +155,7 @@ class BUI:
 		if self.enabled:
 			""" read mouse """
 			x,y = event.mouse_region_x, event.mouse_region_y
-			
+
 			""" get keys state """
 			if event.type in {'LEFT_SHIFT','RIGHT_SHIFT'}:
 				if event.value == 'PRESS':
@@ -298,15 +277,15 @@ class BUI:
 		if self.onmove != None:
 			self.onmove()
 	def resize(self,edges,value):
-		if edges.top:
-			self.size.y += value.y
-		if edges.bottom:
-			self.size.y -= value.y
-			self.pos.y += value.y
 		if edges.left:
 			self.size.x -= value.x
 			self.pos.x += value.x
 		if edges.right:
 			self.size.x += value.x
+		if edges.top:
+			self.size.y += value.y
+		if edges.bottom:
+			self.size.y -= value.y
+			self.pos.y += value.y
 
 __all__ = ["BUI"]

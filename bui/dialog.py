@@ -1,7 +1,4 @@
 ############################################################################
-#    BsMax, 3D apps inteface simulator and tools pack for Blender
-#    Copyright (C) 2020  Naser Merati (Nevil)
-#
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -15,11 +12,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
-
 import bpy, gpu, bgl, blf
 from gpu_extras.batch import batch_for_shader
 from bpy.types import Operator
 from .master.bui import BUI
+from .master.classes import Vector2
 from .master.graphic import Rectangle
 from .button import Button
 
@@ -118,20 +115,33 @@ class Dialog(Operator,BUI):
 		self.body.fillet.set(9,9,9,9)
 		self.body.color.set((0.13,0.13,0.13,1),(0.13,0.13,0.13,1),(0.13,0.13,0.13,1))
 		self.graphics.append(self.body)
+		self.titlebar = None
 
 	def update(self):
 		self.body.size = self.size.copy()
+		if self.titlebar != None:
+			self.titlebar.caption += self.caption
 		self._update()
 
 	def redraw(self):
 		""" re draw the graphic """
 		self.update()
-		for g in self.get_graphics():
+
+		for graphic in self.get_graphics():
 			self.shader.bind()
-			vertices, indices, color = g.get_shape()
+			vertices, indices, color = graphic.get_shape()
 			batch = batch_for_shader(self.shader,'TRIS',{"pos":vertices},indices=indices)
 			self.shader.uniform_float("color", color)
 			batch.draw(self.shader)
+
+		for caption in self.get_captions():
+			if not caption.hide:
+				blf.size(0,caption.size,72)
+				w,h = blf.dimensions(0,caption.text)
+				location = caption.location(Vector2(w,h))
+				blf.position(0,location.x,location.y,0)
+				blf.color(0,1,1,1,1)
+				blf.draw(0,caption.text)
 
 	def modal(self, ctx, event):
 		if ctx.area:
@@ -160,7 +170,12 @@ class Dialog(Operator,BUI):
 		self.active_space = ctx.area.spaces.active
 		self.handler = self.active_space.draw_handler_add(self.redraw,(),'WINDOW','POST_PIXEL')
 		self.setup()
-		self.controllers.append(TitleBar(self))
+		self.titlebar = TitleBar(self)
+		self.controllers.append(self.titlebar)
+		self.titlebar.caption.align.set(True,False,False,False,True)
+		self.titlebar.caption.offset.set(10,0)
+		self.titlebar.border.set(10,10,0,0)
+		self.caption.hide = True
 		return {'RUNNING_MODAL'}
 
 __all__ = ["Dialog"]

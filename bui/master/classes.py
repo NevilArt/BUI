@@ -1,7 +1,4 @@
 ############################################################################
-#    BsMax, 3D apps inteface simulator and tools pack for Blender
-#    Copyright (C) 2020  Naser Merati (Nevil)
-#
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -27,9 +24,10 @@ class Vector2:
 	def add(self,x,y):
 		self.x += x
 		self.y += y
-	def minus(self,x,y):
-		self.x -= x
-		self.y -= y
+	def __add__(self, vec):
+		return Vector2(self.x+vec.x,self.y+vec.y)
+	def __iadd__(self, vec):
+		return Vector2(self.x+vec.x,self.y+vec.y)
 
 class VectorRange2:
 	def __init__(self,x,y):
@@ -48,9 +46,8 @@ class VectorRange2:
 	def add(self,x,y):
 		self._x += x
 		self._y += y
-	def minus(self,x,y):
-		self._x -= x
-		self._y -= y
+	def __add__(self, vec):
+		return VectorRange2(self.x+vec.x,self.y+vec.y)
 	@property
 	def x(self):
 		return self._x
@@ -71,15 +68,24 @@ class VectorRange2:
 			self._y = y 
 
 class Edge:
-	def __init__(self,top,bottom,left,right):
-		self.set(top,bottom,left,right)
-	def set(self,top,bottom,left,right):
-		self.top = top
-		self.bottom = bottom
+	def __init__(self,left,right,top,bottom):
+		self.set(left,right,top,bottom)
+	def set(self,left,right,top,bottom):
 		self.left = left
 		self.right = right
+		self.top = top
+		self.bottom = bottom
 	def any(self):
-		return self.top or self.bottom or self.left or self.right
+		return self.left or self.right or self.top or self.bottom
+
+class Border:
+	def __init__(self,left,right,top,bottom):
+		self.set(left,right,top,bottom)
+	def set(self,left,right,top,bottom):
+		self.left = left
+		self.right = right
+		self.top = top
+		self.bottom = bottom
 
 class Corner:
 	def __init__(self,top_left,top_right,bottom_left,bottom_right):
@@ -122,40 +128,53 @@ class Range:
 		return val / length if length > 0 else 0
 
 class Align:
-	def __init__(self,top,bottom,left,right,center):
-		self.set(top,bottom,left,right,center)
-	def set(self,top,bottom,left,right,center):
-		self.top = top
-		self.bottom = bottom
+	def __init__(self,left,right,top,bottom,center):
+		self.set(left,right,top,bottom,center)
+	def set(self,left,right,top,bottom,center):
 		self.left = left
 		self.right = right
+		self.top = top
+		self.bottom = bottom
 		self.center = center
+	def location(self,pos,size1,size2):
+		if self.center:
+			if not self.left and not self.right:
+				pos.x = size1.x/2-size2.x/2
+			if not self.top and not self.bottom:
+				pos.y = size1.y/2-size2.y/2
+		if self.left and not self.right:
+			pos.x = 0
+		if self.right and not self.left:
+			pos.x = size1.x-size2.x
+		if self.top and not self.bottom:
+			pos.y = size1.y-size2.y
+		if self.bottom and not self.top:
+			pos.y = 0
+		return pos
 
 class Scale:
-	def __init__(self,enabled,top,bottom,left,right,sensitive):
-		self.set(enabled,top,bottom,left,right,sensitive)
-	def set(self,enabled,top,bottom,left,right,sensitive):
+	def __init__(self,enabled,left,right,top,bottom,sensitive):
+		self.set(enabled,left,right,top,bottom,sensitive)
+	def set(self,enabled,left,right,top,bottom,sensitive):
 		self.enabled = enabled
-		self.top = top
-		self.bottom = bottom
 		self.left = left
 		self.right = right
+		self.top = top
+		self.bottom = bottom
 		self.sensitive = sensitive
 		self.touched = Edge(False,False,False,False)
 
-class Dimantion:
-	def __init__(self,x,y,width,height):
-		self.set(x,y,width,height)
-	def set(self,x,y,width,height):
-		self.x = x
-		self.y = y
-		self.width = width
-		self.height = height
+class Dimension:
+	def __init__(self,pos,size):
+		self.set(pos,size)
+	def set(self,pos,size):
+		self.pos = pos
+		self.size = size
 	def get_start_end_length(self,border):
-		x = self.x+border.left
-		y = self.y+border.bottom
-		w = self.width-border.left-border.right
-		h = self.height-border.bottom-border.top
+		x = self.pos.x+border.left
+		y = self.pos.y+border.bottom
+		w = self.size.x-border.left-border.right
+		h = self.size.y-border.bottom-border.top
 		return Vector2(x,y),Vector2(x+w,y+h),Vector2(w,h)
 
 class Colors:
@@ -188,7 +207,7 @@ class Mouse:
 		self.lmb = MouseButton()
 		self.pos = Vector2(0,0)
 	def delta(self,x,y):
-		return x-self.pos.x, y-self.pos.y
+		return x-self.pos.x,y-self.pos.y
 
 class Keyboard:
 	def __init__(self):
@@ -196,6 +215,31 @@ class Keyboard:
 		self.shift = False
 		self.alt = False
 
-__all__ = ["Vector2", "Edge", "Corner", "Scale", "VectorRange2",
-			"Range", "Align", "Dimantion", "Colors",
+class Caption:
+	def __init__(self):
+		self.owner = None
+		self.text = ""
+		self.font = ""
+		self.size = 12
+		self.pos = Vector2(0,0)
+		self.offset = Vector2(0,0)
+		self.color = Colors()
+		self.align = Align(False,False,False,False,True)
+		self.hide = False
+	def __iadd__(self, targ):
+		self.text = targ.text
+		self.font = targ.font
+		self.size = targ.size
+		self.pos = targ.pos.copy()
+		# self.color = targ.color.copy()
+		# self.align = targ.align.copy()
+		return self
+	def location(self,size):
+		if self.owner != None:
+			return self.owner.location+self.align.location(self.pos,self.owner.size,size)+self.offset
+		else:
+			return self.pos
+
+__all__ = ["Vector2", "Edge", "Corner", "Scale", "VectorRange2", "Border",
+			"Range", "Align", "Dimension", "Colors", "Caption",
 			"MouseButton", "Mouse", "Keyboard"]
