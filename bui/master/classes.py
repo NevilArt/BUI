@@ -1,36 +1,94 @@
+############################################################################
+#    BsMax, 3D apps inteface simulator and tools pack for Blender
+#    Copyright (C) 2020  Naser Merati (Nevil)
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+############################################################################
+
 class Vector2:
-	def __init__(self, x,y):
+	def __init__(self,x,y):
 		self.set(x,y)
 	def set(self,x,y):
 		self.x = x
 		self.y = y
+	def copy(self):
+		return(Vector2(self.x,self.y))
+	def add(self,x,y):
+		self.x += x
+		self.y += y
+	def minus(self,x,y):
+		self.x -= x
+		self.y -= y
 
-class Vector4:
-	def __init__(self,a,b,c,d):
-		self.set(a,b,c,d)
-	def set(self,a,b,c,d):
-		self.a = a
-		self.b = b
-		self.c = c
-		self.d = d
+class VectorRange2:
+	def __init__(self,x,y):
+		self.limit = Vector2(False,False)
+		self.min = Vector2(0,0)
+		self.max = Vector2(0,0)
+		self.default = Vector2(x,y)
+		self.set(x,y)
+	def set(self,x,y):
+		self._x = x
+		self._y = y
+	def copy(self):
+		return(Vector2(self._x,self._y))
+	def reset(self):
+		self.set(self.default.x,self.default.y)
+	def add(self,x,y):
+		self._x += x
+		self._y += y
+	def minus(self,x,y):
+		self._x -= x
+		self._y -= y
+	@property
+	def x(self):
+		return self._x
+	@x.setter
+	def x(self, x):
+		if self.limit.x:
+			self._x = self.min.x if x < self.min.x else self.max.x if x > self.max.x else x
+		else:
+			self._x = x
+	@property
+	def y(self):
+		return self._y
+	@y.setter
+	def y(self, y):
+		if self.limit.y:
+			self._y = self.min.y if y < self.min.y else self.max.y if y > self.max.y else y
+		else:
+			self._y = y 
 
 class Edge:
-	def __init__(self,up,down,left,right):
-		self.set(up,down,left,right)
-	def set(self,up,down,left,right):
-		self.up = up
-		self.down = down
+	def __init__(self,top,bottom,left,right):
+		self.set(top,bottom,left,right)
+	def set(self,top,bottom,left,right):
+		self.top = top
+		self.bottom = bottom
 		self.left = left
 		self.right = right
+	def any(self):
+		return self.top or self.bottom or self.left or self.right
 
 class Corner:
-	def __init__(self,up_left,up_right,down_left,down_right):
-		self.set(up_left,up_right,down_left,down_right)
-	def set(self,up_left,up_right,down_left,down_right):
-		self.up_left = up_left
-		self.up_right = up_right
-		self.down_left = down_left
-		self.down_right = down_right
+	def __init__(self,top_left,top_right,bottom_left,bottom_right):
+		self.set(top_left,top_right,bottom_left,bottom_right)
+	def set(self,top_left,top_right,bottom_left,bottom_right):
+		self.top_left = top_left
+		self.top_right = top_right
+		self.bottom_left = bottom_left
+		self.bottom_right = bottom_right
 
 class Range:
 	def __init__(self, minval, maxval, default):
@@ -64,14 +122,26 @@ class Range:
 		return val / length if length > 0 else 0
 
 class Align:
-	def __init__(self,left,right,up,down,center):
-		self.set(left,right,up,down,center)
-	def set(self,left,right,up,down,center):
+	def __init__(self,top,bottom,left,right,center):
+		self.set(top,bottom,left,right,center)
+	def set(self,top,bottom,left,right,center):
+		self.top = top
+		self.bottom = bottom
 		self.left = left
 		self.right = right
-		self.up = up
-		self.down = down
 		self.center = center
+
+class Scale:
+	def __init__(self,enabled,top,bottom,left,right,sensitive):
+		self.set(enabled,top,bottom,left,right,sensitive)
+	def set(self,enabled,top,bottom,left,right,sensitive):
+		self.enabled = enabled
+		self.top = top
+		self.bottom = bottom
+		self.left = left
+		self.right = right
+		self.sensitive = sensitive
+		self.touched = Edge(False,False,False,False)
 
 class Dimantion:
 	def __init__(self,x,y,width,height):
@@ -83,9 +153,9 @@ class Dimantion:
 		self.height = height
 	def get_start_end_length(self,border):
 		x = self.x+border.left
-		y = self.y+border.down
+		y = self.y+border.bottom
 		w = self.width-border.left-border.right
-		h = self.height-border.down-border.up
+		h = self.height-border.bottom-border.top
 		return Vector2(x,y),Vector2(x+w,y+h),Vector2(w,h)
 
 class Colors:
@@ -126,6 +196,6 @@ class Keyboard:
 		self.shift = False
 		self.alt = False
 
-__all__ = ["Vector2", "Vector4", "Edge", "Corner",
+__all__ = ["Vector2", "Edge", "Corner", "Scale", "VectorRange2",
 			"Range", "Align", "Dimantion", "Colors",
 			"MouseButton", "Mouse", "Keyboard"]

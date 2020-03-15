@@ -12,6 +12,7 @@ class BUI_OT_Test(Dialog):
 		self.pos.set(300,300)
 		self.size.set(300,300)
 		self.border.set(10,10,10,10)
+		self.scale.enabled = True
 
 		""" add more controllers """
 		self.btn1 = Button(20,20,80,20,self)
@@ -30,6 +31,9 @@ class BUI_OT_Test(Dialog):
 
 		self.joy = Slider(20,100,150,150,self)
 		self.joy.moveable = True
+		self.joy.scale.enabled = True
+		self.joy.x.set(-65,85,0)
+		self.joy.y.set(-65,85,0)
 		self.joy.ondrag = self.joy_draged
 		self.controllers.append(self.joy)
 

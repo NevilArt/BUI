@@ -1,3 +1,21 @@
+############################################################################
+#    BsMax, 3D apps inteface simulator and tools pack for Blender
+#    Copyright (C) 2020  Naser Merati (Nevil)
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+############################################################################
+
 from .master.bui import BUI
 from .master.classes import Vector2,Range
 from .master.graphic import Rectangle
@@ -16,9 +34,12 @@ class Slider(BUI):
 
 		self.x = Range(0,100,20)
 		self.y = Range(0,100,20)
+		# self.value = VectorRange2(20,20)
+		# self.value.limit.set(True)
+		# self.value.limit.min.set(0,0)
+		# self.value.limit.max.set(0,0)
 		self.setup()
 
-	#TODO has option to allow negative mode to
 	def setup(self):
 		self.handel = Button(0,0,30,30,self)
 		self.handel.body.fillet.set(15,15,15,15)
@@ -44,22 +65,9 @@ class Slider(BUI):
 		if self.ondrag != None:
 			self.ondrag()
 
-	def joy_rightclicked(self):
-		if self.onrightclicked != None:
-			self.onrightclicked()
-		else:
-			pass
-			# do reset
-
-	def drag(self,x,y):
-		if self.moveable:
-			self.pos.x += x
-			self.pos.y += y
-
 	def update(self):
-		#TODO Update handel position by value if not in drag mode
 		if self.owner != None:
-			self.body.size = self.size
+			self.body.size = self.size.copy()
 		self._update()
 
 __all__ = ["Slider"]

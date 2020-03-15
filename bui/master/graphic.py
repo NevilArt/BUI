@@ -1,3 +1,21 @@
+############################################################################
+#    BsMax, 3D apps inteface simulator and tools pack for Blender
+#    Copyright (C) 2020  Naser Merati (Nevil)
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+############################################################################
+
 from math import sin, cos, pi
 from .classes import Colors, Vector2, Corner, Edge
 
@@ -58,10 +76,10 @@ class Rectangle:
 		center = Vector2(pos.x+size.x/2,pos.y+size.y/2)
 		verts.append((center.x,center.y))
 		
-		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.up_right,1,1)
-		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.down_right,1,-1)
-		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.down_left,-1,-1)
-		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.up_left,-1,1)
+		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.top_right,1,1)
+		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.bottom_right,1,-1)
+		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.bottom_left,-1,-1)
+		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.top_left,-1,1)
 
 		count = len(verts)
 		for i in range(1,count):
@@ -78,7 +96,6 @@ class Rectangle:
 class Gride:
 	def __init__(self):
 		self.count = Vector2(1,1)
-		self.size = Vector2(1,1)
 		self.color = Colors()
 		self.vertices = []
 		self.indices = []

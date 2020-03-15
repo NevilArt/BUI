@@ -1,7 +1,25 @@
+############################################################################
+#    BsMax, 3D apps inteface simulator and tools pack for Blender
+#    Copyright (C) 2020  Naser Merati (Nevil)
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+############################################################################
+
 import bpy, gpu, bgl, blf
 from gpu_extras.batch import batch_for_shader
 from bpy.types import Operator
-from .classes import Vector2,Mouse,Keyboard,Edge,Align,Dimantion
+from .classes import Vector2,Mouse,Keyboard,Edge,Align,Dimantion,Scale,VectorRange2
 
 class BUI:
 	def __init__(self):
@@ -13,15 +31,19 @@ class BUI:
 		""" Control data """
 		self.mouse = Mouse()
 		self.kb = Keyboard()
-		self.pos = Vector2(0,0)
+		self.pos = VectorRange2(0,0)
+		self.pos.limit.set(True,True)
+		self.size = VectorRange2(0,0)
+		self.size.limit.set(True,True)
 		self.location = Vector2(0,0)
-		self.size = Vector2(0,0)
 		self.offset = Vector2(0,0)
 		self.owner = None
+		# self.master = []
 		self.controllers = []
 		self.fit = Edge(False,False,False,False)
 		self.align = Align(False,False,False,False,False)
 		self.border = Edge(0,0,0,0)
+		self.scale = Scale(False,True,True,True,True,5)
 		
 		""" Flags """
 		self.active = None
@@ -60,23 +82,22 @@ class BUI:
 		position = Vector2(0,0)
 		if owner != None:
 			""" get offset by parent location """
-			position.x = owner.location.x
-			position.y = owner.location.y
+			position.set(owner.location.x,owner.location.y)
 
 			""" get allowd area """
 			border = Edge(0,0,0,0) if self.ignorborder else owner.border
 			dim = Dimantion(0,0,owner.size.x,owner.size.y)
 			start,end,length = dim.get_start_end_length(border)
 
+			""" limit size fit to parent """
+			size.min.set(0,0)
+			size.max.set(owner.size.x-border.right-pos.x,owner.size.y-border.top-pos.y)
+			# size.max.set(length.x-pos.x,length.y-pos.y)
+
 			""" limit location inside of parent """
-			if pos.x > end.x-size.x:
-				pos.x = end.x-size.x
-			if pos.x < start.x:
-				pos.x = start.x
-			if pos.y > end.y-size.y:
-				pos.y = end.y-size.y
-			if pos.y < start.y:
-				pos.y = start.y
+			pos.limit.set(True,True)
+			pos.min.set(start.x,start.y)
+			pos.max.set(end.x-size.x,end.y-size.y)
 
 			""" apply fit """
 			if self.fit.left:
@@ -84,10 +105,10 @@ class BUI:
 				pos.x = start.x
 			if self.fit.right:
 				size.x = length.x
-			if self.fit.down:
+			if self.fit.bottom:
 				size.y += pos.y-start.y
 				pos.y = start.y
-			if self.fit.up:
+			if self.fit.top:
 				size.y = length.y
 
 			""" apply alignment """
@@ -95,7 +116,7 @@ class BUI:
 			if align.center:
 				if not align.left and not align.right:
 					pos.x = owner.size.x/2-size.x/2
-				if not align.up and not align.down:
+				if not align.top and not align.bottom:
 					pos.y = owner.size.y/2-size.y/2
 			
 			if align.left and not align.right:
@@ -103,9 +124,9 @@ class BUI:
 			if align.right and not align.left:
 				pos.x = owner.size.x-size.x
 
-			if align.up and not align.down:
+			if align.top and not align.bottom:
 				pos.y = owner.size.y-size.y
-			if align.down and not align.up:
+			if align.bottom and not align.top:
 				pos.y = 0
 
 		x = position.x+pos.x+self.offset.x
@@ -115,7 +136,7 @@ class BUI:
 
 		self.location.x = x
 		self.location.y = y
-		return Vector2(x,y),Vector2(w,h)
+		return VectorRange2(x,y),VectorRange2(w,h)
 
 	def get_graphics(self):
 		pos,size = self.arrange()
@@ -138,6 +159,16 @@ class BUI:
 					if c.mouse_hover(event):
 						self.active = c if c.active == c else c.active
 						break
+			if self.scale.enabled:
+				s, scale = self.scale.sensitive, self.scale
+				if scale.top:
+					scale.touched.top = y+h-s < my < y+h
+				if scale.bottom:
+					scale.touched.bottom = y < my < y+s
+				if scale.left:
+					scale.touched.left = x < mx < x+s
+				if scale.right:
+					scale.touched.right = x+w-s < mx < x+w
 			return (x < mx < x+w and y < my < y+h)
 		return False
 
@@ -203,12 +234,15 @@ class BUI:
 						self.active.rightclick()
 
 			if event.type == 'MOUSEMOVE':
-				m_dx,m_dy = self.mouse.delta(x,y)
-				if m_dx != 0 or m_dy != 0:
+				dx,dy = self.mouse.delta(x,y)
+				if dx != 0 or dy != 0:
 					if self.mouse.lmb.pressed:
-						self.active.drag(m_dx,m_dy)
+						if self.active.scale.enabled and self.active.scale.touched.any():
+							self.active.resize(self.active.scale.touched,Vector2(dx,dy))
+						else:
+							self.active.drag(dx,dy)
 					elif self.hover:
-						self.active.move(m_dx,m_dy)
+						self.active.move(dx,dy)
 				self.mouse.pos = Vector2(x,y)
 
 			self.active.state = 2 if self.mouse.lmb.pressed else 1 if self.hover else 0
@@ -217,8 +251,7 @@ class BUI:
 	def setup(self):
 		pass
 	def update(self):
-		# self._update()
-		pass
+		pass # self._update()
 	def _update(self):
 		if not self.ignorechildren:
 			for c in self.controllers:
@@ -264,5 +297,16 @@ class BUI:
 	def move(self,x,y):
 		if self.onmove != None:
 			self.onmove()
+	def resize(self,edges,value):
+		if edges.top:
+			self.size.y += value.y
+		if edges.bottom:
+			self.size.y -= value.y
+			self.pos.y += value.y
+		if edges.left:
+			self.size.x -= value.x
+			self.pos.x += value.x
+		if edges.right:
+			self.size.x += value.x
 
 __all__ = ["BUI"]

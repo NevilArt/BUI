@@ -1,3 +1,21 @@
+############################################################################
+#    BsMax, 3D apps inteface simulator and tools pack for Blender
+#    Copyright (C) 2020  Naser Merati (Nevil)
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+############################################################################
+
 import bpy, gpu, bgl, blf
 from gpu_extras.batch import batch_for_shader
 from bpy.types import Operator
@@ -14,13 +32,13 @@ class TitleBar(BUI):
 		self.size.y = 30
 		self.fit.left = True
 		self.fit.right = True
-		self.align.up = True
+		self.align.top = True
 		self.ignorborder = True
 		""" graphics """
 		self.body = Rectangle()
 		self.body.size.y = self.size.y
-		self.body.fillet.up_left = 9
-		self.body.fillet.up_right = 9
+		self.body.fillet.top_left = 9
+		self.body.fillet.top_right = 9
 		self.body.color.set((0.300,0.300,0.300,1),(0.300,0.300,0.300,1),(0.320,0.320,0.340,1))
 		self.graphics.append(self.body)
 		""" special """
@@ -42,8 +60,8 @@ class TitleBar(BUI):
 			self.owner.pos.y += self.owner.size.y-self.size.y
 			self.owner_size_y = self.owner.size.y
 			self.owner.size.y = self.size.y
-			self.body.fillet.down_left = 9
-			self.body.fillet.down_right = 9
+			self.body.fillet.bottom_left = 9
+			self.body.fillet.bottom_right = 9
 			""" store controllers bu titlebar """
 			for c in self.owner.controllers:
 				if c != self:
@@ -53,8 +71,8 @@ class TitleBar(BUI):
 		else:
 			self.owner.size.y = self.owner_size_y
 			self.owner.pos.y -= self.owner.size.y-self.size.y
-			self.body.fillet.down_left = 0
-			self.body.fillet.down_right = 0
+			self.body.fillet.bottom_left = 0
+			self.body.fillet.bottom_right = 0
 			""" restore controllers first titlebar """
 			self.owner.controllers.clear()
 			self.owner.controllers.append(self)
@@ -63,8 +81,8 @@ class TitleBar(BUI):
 	
 	def setup(self):
 		self.owner.size.y += self.size.y
-		self.owner.border.up += self.size.y
-		self.border.right = 20
+		self.owner.border.top += self.size.y
+		self.border.right = 3
 
 		self.close_btn = Button(0,0,26,26,self)
 		self.close_btn.align.center = True
@@ -87,8 +105,7 @@ class TitleBar(BUI):
 		self.controllers.append(self.collaps_btn)
 
 	def drag(self,x,y):
-		self.owner.pos.x += x
-		self.owner.pos.y += y
+		self.owner.pos.add(x,y)
 
 class Dialog(Operator,BUI):
 	def __init__(self):
@@ -103,7 +120,7 @@ class Dialog(Operator,BUI):
 		self.graphics.append(self.body)
 
 	def update(self):
-		self.body.size = self.size
+		self.body.size = self.size.copy()
 		self._update()
 
 	def redraw(self):
