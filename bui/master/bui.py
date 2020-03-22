@@ -12,8 +12,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
+import itertools
 from .classes import Vector2,Mouse,Keyboard,Edge,Align,Dimension,\
 						Scale,VectorRange2,Caption,Border
+from .table import Table
 
 class BUI:
 	def __init__(self):
@@ -26,11 +28,13 @@ class BUI:
 		self.kb = Keyboard()
 		self.pos = VectorRange2(0,0)
 		self.size = VectorRange2(0,0)
+		self.column = 0
+		self.row = 0
 		self.location = Vector2(0,0)
 		self.offset = Vector2(0,0)
 		self.owner = None
-		# self.master = []
 		self.controllers = []
+		self.table = Table()
 		self.fit = Edge(False,False,False,False)
 		self.align = Align(False,False,False,False,False)
 		self.border = Border(0,0,0,0)
@@ -45,6 +49,7 @@ class BUI:
 		self.destroy = False
 		self.ignorborder = False
 		self.ignorechildren = False
+		self.ignoretable = False
 		""" Reserved for user funcions """
 		self.onmove = None
 		self.onclick = None
@@ -65,6 +70,10 @@ class BUI:
 
 	def reset(self):
 		pass
+
+	def get_table(self):
+		self.table.create(self.controllers)
+		#self.table.arrange_sizes()
 
 	def arrange(self):
 		pos,size,owner = self.pos,self.size,self.owner
@@ -107,7 +116,17 @@ class BUI:
 			""" apply alignment """
 			p = self.align.location(pos,owner.size,size)
 			pos.set(p.x,p.y)
-			pos += start
+
+			if not self.ignoretable and not self.moveable:
+				self.owner.table.border = self.border
+				self.owner.table.gap.set(5,5)
+				self.owner.table.update()
+				cell = self.owner.table.get_cell(self.column,self.row)
+				pos.set(cell.pos.x,cell.pos.y)
+
+				# if not self.size.lock:
+				# 	table_size = self.owner.table.size
+				# 	self.owner.size.set(table_size.x, table_size.y)
 
 		self.location = position+pos+self.offset
 		return self.location,size

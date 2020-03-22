@@ -18,11 +18,16 @@ from .master.graphic import Rectangle
 
 # custom controller -------------------------------------------
 class Button(BUI):
-	def __init__(self,x,y,width,height,owner):
+	def __init__(self,owner,pos=[0,0],size=[50,50],text="",column=0,row=0,onclick=None):
 		super().__init__()
-		self.pos.set(x,y)
-		self.size.set(width,height)
 		self.owner = owner
+		self.pos.set(pos[0],pos[1])
+		self.size.set(size[0],size[1])
+		self.caption.text = text
+		self.caption.align.center = True
+		self.column = column
+		self.row = row
+		self.onclick = onclick
 		self.body = Rectangle()
 		self.body.fillet.set(9,9,9,9)
 		self.body.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))

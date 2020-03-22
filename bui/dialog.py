@@ -31,6 +31,7 @@ class TitleBar(BUI):
 		self.fit.right = True
 		self.align.top = True
 		self.ignorborder = True
+		self.ignoretable = True
 		""" graphics """
 		self.body = Rectangle()
 		self.body.size.y = self.size.y
@@ -49,6 +50,7 @@ class TitleBar(BUI):
 			self.owner.destroy= True
 
 	def fit_btn_pressed(self):
+		# need to get screen resolution
 		pass
 
 	def collaps_btn_pressed(self):
@@ -59,46 +61,44 @@ class TitleBar(BUI):
 			self.owner.size.y = self.size.y
 			self.body.fillet.bottom_left = 9
 			self.body.fillet.bottom_right = 9
-			""" store controllers bu titlebar """
-			for c in self.owner.controllers:
-				if c != self:
-					self.owner_controllers.append(c)
-			self.owner.controllers.clear()
-			self.owner.controllers.append(self)
+			self.owner_controllers = [c for c in self.owner.controllers if c != self]
+			self.owner.controllers = [self]
 		else:
 			self.owner.size.y = self.owner_size_y
 			self.owner.pos.y -= self.owner.size.y-self.size.y
 			self.body.fillet.bottom_left = 0
 			self.body.fillet.bottom_right = 0
-			""" restore controllers first titlebar """
-			self.owner.controllers.clear()
-			self.owner.controllers.append(self)
 			self.owner.controllers += self.owner_controllers
-			self.owner_controllers.clear()
 	
 	def setup(self):
 		self.owner.size.y += self.size.y
 		self.owner.border.top += self.size.y
 		self.border.right = 3
 
-		self.close_btn = Button(0,0,26,26,self)
+		self.close_btn = Button(self,size=[26,26],onclick=self.close_btn_pressed)
+		self.close_btn.caption.text = "X"
+		self.close_btn.caption.align.center = True
+		self.close_btn.ignoretable = True
 		self.close_btn.align.center = True
 		self.close_btn.align.right = True
-		self.close_btn.onclick = self.close_btn_pressed
 		self.controllers.append(self.close_btn)
 
-		self.fit_btn = Button(0,0,26,26,self)
+		self.fit_btn = Button(self,size=[26,26],onclick=self.fit_btn_pressed)
+		self.fit_btn.caption.text = "/"
+		self.fit_btn.caption.align.center = True
+		self.fit_btn.ignoretable = True
 		self.fit_btn.align.center = True
 		self.fit_btn.align.right = True
 		self.fit_btn.offset.x = -30
-		self.fit_btn.onclick = self.fit_btn_pressed
 		self.controllers.append(self.fit_btn)
 
-		self.collaps_btn = Button(0,0,26,26,self)
+		self.collaps_btn = Button(self,size=[26,26],onclick=self.collaps_btn_pressed)
+		self.collaps_btn.caption.text = "-"
+		self.collaps_btn.caption.align.center = True
+		self.collaps_btn.ignoretable = True
 		self.collaps_btn.align.center = True
 		self.collaps_btn.align.right = True
 		self.collaps_btn.offset.x = -60
-		self.collaps_btn.onclick = self.collaps_btn_pressed
 		self.controllers.append(self.collaps_btn)
 
 	def drag(self,x,y):
@@ -165,6 +165,11 @@ class Dialog(Operator,BUI):
 		if self.handler != None:
 			self.active_space.draw_handler_remove(self.handler, "WINDOW")
 
+	def open(self):
+		pass
+	def close(self):
+		pass
+
 	def invoke(self, ctx, event):
 		ctx.window_manager.modal_handler_add(self)
 		self.active_space = ctx.area.spaces.active
@@ -176,6 +181,8 @@ class Dialog(Operator,BUI):
 		self.titlebar.caption.offset.set(10,0)
 		self.titlebar.border.set(10,10,0,0)
 		self.caption.hide = True
+		self.get_table()
+		self.open()
 		return {'RUNNING_MODAL'}
 
 __all__ = ["Dialog"]

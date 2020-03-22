@@ -31,14 +31,15 @@ class Vector2:
 
 class VectorRange2:
 	def __init__(self,x,y):
+		self.lock = False
 		self.limit = Vector2(False,False)
-		self.min = Vector2(0,0)
-		self.max = Vector2(0,0)
+		self.min = Vector2(x,y)
+		self.max = Vector2(x,y)
 		self.default = Vector2(x,y)
 		self.set(x,y)
 	def set(self,x,y):
-		self._x = x
-		self._y = y
+		self.x = x
+		self.y = y
 	def copy(self):
 		return(Vector2(self._x,self._y))
 	def reset(self):
@@ -53,7 +54,9 @@ class VectorRange2:
 		return self._x
 	@x.setter
 	def x(self, x):
-		if self.limit.x:
+		if self.lock:
+			self._x = self.default.x
+		elif self.limit.x:
 			self._x = self.min.x if x < self.min.x else self.max.x if x > self.max.x else x
 		else:
 			self._x = x
@@ -62,7 +65,9 @@ class VectorRange2:
 		return self._y
 	@y.setter
 	def y(self, y):
-		if self.limit.y:
+		if self.lock:
+			self._y = self.default.y
+		elif self.limit.y:
 			self._y = self.min.y if y < self.min.y else self.max.y if y > self.max.y else y
 		else:
 			self._y = y 

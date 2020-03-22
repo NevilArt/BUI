@@ -19,11 +19,11 @@ from .master.graphic import Rectangle
 from .button import Button
 
 class Slider(BUI):
-	def __init__(self,x,y,width,height,owner):
+	def __init__(self,owner,pos=[0,0],size=[100,100],text=""):
 		super().__init__()
-		self.pos.set(x,y)
-		self.size.set(width,height)
 		self.owner = owner
+		self.pos.set(pos[0],pos[1])
+		self.size.set(size[0],size[1])
 
 		self.body = Rectangle()
 		self.body.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
@@ -34,12 +34,13 @@ class Slider(BUI):
 		self.setup()
 
 	def setup(self):
-		self.handel = Button(0,0,30,30,self)
+		self.handel = Button(self,size=[30,30])
+		self.handel.ignoretable = True
 		self.handel.body.fillet.set(15,15,15,15)
-		self.body.fillet.set(15,15,15,15)
 		self.handel.moveable = True
 		self.handel.ondrag = self.handel_draged
 		self.handel.onrightclick = self.joy_rightclick
+		self.body.fillet.set(15,15,15,15)
 		self.controllers.append(self.handel)
 
 	def handel_draged(self):
