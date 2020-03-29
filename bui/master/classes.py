@@ -17,8 +17,9 @@ class Vector2:
 	def __init__(self,x,y):
 		self.set(x,y)
 	def set(self,x,y):
-		self.x = x
-		self.y = y
+		self.x,self.y = x,y
+	def get(self):
+		return self.x, self.y
 	def copy(self):
 		return(Vector2(self.x,self.y))
 	def add(self,x,y):
@@ -32,16 +33,26 @@ class Vector2:
 class VectorRange2:
 	def __init__(self,x,y):
 		self.lock = False
+		self.auto = False
 		self.limit = Vector2(False,False)
 		self.min = Vector2(x,y)
 		self.max = Vector2(x,y)
 		self.default = Vector2(x,y)
 		self.set(x,y)
 	def set(self,x,y):
-		self.x = x
-		self.y = y
-	def copy(self):
-		return(Vector2(self._x,self._y))
+		self.x, self.y = x,y
+	def get(self):
+		return self.x, self.y
+	def copy(self, full=False):
+		vr = Vector2(self._x,self._y)
+		if full:
+			vr.lock = self.lock
+			vr.auto = self.auto
+			vr.limit = self.limit.copy()
+			vr.min = self.min.copy()
+			vr.max = self.max.copy()
+			vr.default = self.default.copy()
+		return(vr)
 	def reset(self):
 		self.set(self.default.x,self.default.y)
 	def add(self,x,y):
@@ -49,6 +60,10 @@ class VectorRange2:
 		self._y += y
 	def __add__(self, vec):
 		return VectorRange2(self.x+vec.x,self.y+vec.y)
+	def __eq__(self, vec):
+		return self._x == vec.x and self._y == vec.y
+	def __ne__(self, vec):
+		return not(self._x == vec.x and self._y == vec.y)
 	@property
 	def x(self):
 		return self._x
@@ -82,15 +97,20 @@ class Edge:
 		self.bottom = bottom
 	def any(self):
 		return self.left or self.right or self.top or self.bottom
+	def copy(self):
+		return Edge(self.left,self.right,self.top,self.bottom)
 
 class Border:
 	def __init__(self,left,right,top,bottom):
 		self.set(left,right,top,bottom)
+		self.ignore = False
 	def set(self,left,right,top,bottom):
 		self.left = left
 		self.right = right
 		self.top = top
 		self.bottom = bottom
+	def copy(self):
+		return Border(self.left,self.right,self.top,self.bottom)
 
 class Corner:
 	def __init__(self,top_left,top_right,bottom_left,bottom_right):
@@ -100,6 +120,8 @@ class Corner:
 		self.top_right = top_right
 		self.bottom_left = bottom_left
 		self.bottom_right = bottom_right
+	def copy(self):
+		return Corner(self.top_left,self.top_right,self.bottom_left,self.bottom_right)
 
 class Range:
 	def __init__(self, minval, maxval, default):
@@ -115,6 +137,8 @@ class Range:
 			self.max == self.min
 		if self.min < self.default > self.max:
 			self.default = self.min
+	def copy(self):
+		return Range(self.min,self.maxval,self.default)
 	def reset(self):
 		self.value = self.default
 	def get_lenght(self):
@@ -141,7 +165,12 @@ class Align:
 		self.top = top
 		self.bottom = bottom
 		self.center = center
-	def location(self,pos,size1,size2):
+	def copy(self):
+		return Align(self.left,self.right,self.top,self.bottom,self.center)
+	def any(self):
+		return self.left or self.right or self.top or self.bottom or self.center
+	def location(self,size1,size2):
+		pos = Vector2(0,0)
 		if self.center:
 			if not self.left and not self.right:
 				pos.x = size1.x/2-size2.x/2
@@ -156,6 +185,8 @@ class Align:
 		if self.bottom and not self.top:
 			pos.y = 0
 		return pos
+	def get_location(self,child,parent):
+		return self.location(parent.size,child.size)
 
 class Scale:
 	def __init__(self,enabled,left,right,top,bottom,sensitive):
@@ -168,6 +199,8 @@ class Scale:
 		self.bottom = bottom
 		self.sensitive = sensitive
 		self.touched = Edge(False,False,False,False)
+	def copy(self):
+		return Scale(self.enabled,self.left,self.right,self.top,self.bottom,self.sensitive)
 
 class Dimension:
 	def __init__(self,pos,size):
@@ -175,6 +208,8 @@ class Dimension:
 	def set(self,pos,size):
 		self.pos = pos
 		self.size = size
+	def copy(self):
+		return Dimension(self.pos.copy(),self.size.copy())
 	def get_start_end_length(self,border):
 		x = self.pos.x+border.left
 		y = self.pos.y+border.bottom
@@ -221,8 +256,8 @@ class Keyboard:
 		self.alt = False
 
 class Caption:
-	def __init__(self):
-		self.owner = None
+	def __init__(self,owner):
+		self.owner = owner
 		self.text = ""
 		self.font = ""
 		self.size = 12
@@ -236,12 +271,10 @@ class Caption:
 		self.font = targ.font
 		self.size = targ.size
 		self.pos = targ.pos.copy()
-		# self.color = targ.color.copy()
-		# self.align = targ.align.copy()
 		return self
 	def location(self,size):
 		if self.owner != None:
-			return self.owner.location+self.align.location(self.pos,self.owner.size,size)+self.offset
+			return self.owner.location+self.align.location(self.owner.size,size)+self.offset
 		else:
 			return self.pos
 

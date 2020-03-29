@@ -17,7 +17,7 @@ from math import sin, cos, pi
 from .classes import Colors, Vector2, Corner, Edge
 
 class Rectangle:
-	def __init__(self):
+	def __init__(self,owner):
 		self.color = Colors()
 		self.vertices = []
 		self.indices = []
@@ -26,6 +26,7 @@ class Rectangle:
 		self.offset = Vector2(0,0)
 		self.fillet = Corner(0,0,0,0)
 		self.border = Edge(0,0,0,0)
+		owner.graphics.append(self)
 
 	def create_shape_(self,pos,size,state):
 		self.state = state
@@ -100,6 +101,7 @@ class Gride:
 		self.size = Vector2(0,0)
 		self.offset = Vector2(0,0)
 		self.border = Edge(0,0,0,0)
+		owner.graphics.append(self)
 
 	def create_shape(self,pos,size,state):
 		self.state = state
@@ -110,6 +112,5 @@ class Gride:
 
 	def get_shape(self):
 		return self.vertices, self.indices, self.color.get(self.state)
-
 
 __all__ = ["Rectangle", "Gride"]

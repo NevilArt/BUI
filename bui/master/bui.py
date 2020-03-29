@@ -20,7 +20,7 @@ from .table import Table
 class BUI:
 	def __init__(self):
 		""" Aperiance """
-		self.caption = Caption()
+		self.caption = Caption(self)
 		self.icon = None
 		self.graphics = []
 		""" Control data """
@@ -34,11 +34,11 @@ class BUI:
 		self.offset = Vector2(0,0)
 		self.owner = None
 		self.controllers = []
-		self.table = Table()
 		self.fit = Edge(False,False,False,False)
 		self.align = Align(False,False,False,False,False)
 		self.border = Border(0,0,0,0)
-		self.scale = Scale(False,True,True,True,True,5)
+		self.scale = Scale(False,True,True,True,True,10)
+		self.table = Table(self)
 		""" Flags """
 		self.active = None
 		self.hover = False
@@ -47,9 +47,7 @@ class BUI:
 		self.enabled = True
 		self.moveable = False
 		self.destroy = False
-		self.ignorborder = False
-		self.ignorechildren = False
-		self.ignoretable = False
+		# self.ignorechildren = False
 		""" Reserved for user funcions """
 		self.onmove = None
 		self.onclick = None
@@ -63,87 +61,63 @@ class BUI:
 		self.onmiddlepush = None
 		self.onmiddlerelease = None
 		self.onmiddleclick = None
-		self._setup()
+	# 	self._setup()
 
-	def _setup(self):
-		self.caption.owner = self
+	# def _setup(self):
+	# 	self.table = 
 
 	def reset(self):
 		pass
 
-	def get_table(self):
-		self.table.create(self.controllers)
-		#self.table.arrange_sizes()
+	def state_fix(self):
+		if self.size.auto:
+			self.scale.enabled = False
+		if self.table.ignore:
+			self.pos.auto = False
+		if self.pos.auto:
+			self.moveable = False
 
 	def arrange(self):
-		pos,size,owner = self.pos,self.size,self.owner
+		##########################################################################
+		# if self.owner != None:
+		# 	size,pos,owner = self.size,self.pos,self.owner
+		# 	border = Edge(0,0,0,0) if owner.border.ignore else self.border
+		# 	dim = Dimension(Vector2(0,0),owner.size)
+		# 	start,end,length = dim.get_start_end_length(border)
+		# 	if self.fit.left:
+		# 		size.x += pos.x-start.x
+		# 		pos.x = start.x
+		# 	if self.fit.right:
+		# 		size.x = length.x
+		# 	if self.fit.bottom:
+		# 		size.y += pos.y-start.y
+		# 		pos.y = start.y
+		# 	if self.fit.top:
+		# 		size.y = length.y
+		##########################################################################
 
-		#TODO if owner is None set space as owner
-
-		""" change size and position of controllers by avalible data """
-		position = Vector2(0,0)
-		if owner != None:
-			""" get offset by parent location """
-			position.set(owner.location.x,owner.location.y)
-
-			""" get allowd area """
-			border = Edge(0,0,0,0) if self.ignorborder else owner.border
-			dim = Dimension(Vector2(0,0),owner.size)
-			start,end,length = dim.get_start_end_length(border)
-
-			""" limit size fit to parent """
-			size.limit.set(True,True)
-			size.min.set(0,0)
-			size.max.set(owner.size.x-border.right-pos.x,owner.size.y-border.top-pos.y)
-
-			""" limit location inside of parent """
-			pos.limit.set(True,True)
-			pos.min.set(start.x,start.y)
-			pos.max.set(end.x-size.x,end.y-size.y)
-
-			""" apply fit """
-			if self.fit.left:
-				size.x += pos.x-start.x
-				pos.x = start.x
-			if self.fit.right:
-				size.x = length.x
-			if self.fit.bottom:
-				size.y += pos.y-start.y
-				pos.y = start.y
-			if self.fit.top:
-				size.y = length.y
-
-			""" apply alignment """
-			p = self.align.location(pos,owner.size,size)
-			pos.set(p.x,p.y)
-
-			if not self.ignoretable and not self.moveable:
-				self.owner.table.border = self.border
-				self.owner.table.gap.set(5,5)
-				self.owner.table.update()
-				cell = self.owner.table.get_cell(self.column,self.row)
-				pos.set(cell.pos.x,cell.pos.y)
-
-				# if not self.size.lock:
-				# 	table_size = self.owner.table.size
-				# 	self.owner.size.set(table_size.x, table_size.y)
-
-		self.location = position+pos+self.offset
-		return self.location,size
+		x,y = (self.owner.location.get() if self.owner != None else (0,0))
+		self.location = Vector2(x,y) + self.pos + self.offset
+		return self.location, self.size
 
 	def get_graphics(self):
-		pos,size = self.arrange()
 		graphics = []
-		for graphic in self.graphics:
-			graphic.create_shape(pos, size, self.state)
-			graphics.append(graphic)
-		for controller in self.controllers:
-			graphics += controller.get_graphics()
+		if self.enabled:
+			pos,size = self.arrange()
+			for graphic in self.graphics:
+				graphic.create_shape(pos, size, self.state)
+				graphics.append(graphic)
+			for controller in self.controllers:
+				graphics += controller.get_graphics()
 		return graphics
 
 	def get_captions(self):
-		captions = [c.caption for c in self.controllers]
-		captions.append(self.caption)
+		captions = []
+		if self.enabled:
+			for c in self.controllers:
+				captions += c.get_captions()
+			#captions += [c.caption for c in self.controllers]
+			captions.append(self.caption)
 		return captions
 
 	def mouse_hover(self, event, deep=True):
@@ -186,7 +160,7 @@ class BUI:
 				if event.value == 'PRESS':
 					self.kb.ctrl = True
 				if event.value == 'RELEASE':
-					self.kb,ctrl = False
+					self.kb.ctrl = False
 
 			if event.type in {'LEFT_ALT','RIGHT_ALT'}:
 				if event.value == 'PRESS':
@@ -245,13 +219,21 @@ class BUI:
 
 			self.active.state = 2 if self.mouse.lmb.pressed else 1 if self.hover else 0
 
+	def _append(self,controller):
+		controller.state_fix()
+		self.controllers.append(controller)
+		self.table.create()
+	def append(self,controller):
+		self._append(controller)
+
 	# reserved functions #
 	def setup(self):
 		pass
 	def update(self):
 		pass # self._update()
 	def _update(self):
-		if not self.ignorechildren:
+		#if not self.ignorechildren:
+		if self.enabled:
 			for c in self.controllers:
 				c.update()
 

@@ -13,28 +13,32 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
 
-bl_info = {
-	"name": "BUI",
-	"description": "BUI for Blender 2.80 ~ 2.83",
-	"author": "Naser Merati (Nevil)",
-	"version": (0, 1, 0, 20200329),
-	"blender": (2, 80, 0),
-	"location": "Python Script",
-	"wiki_url": "https://github.com/NevilArt/BUI/wiki",
-	"tracker_url": "https://github.com/NevilArt/BUI/issues",
-	"category": "Development"
-}
+from .master.bui import BUI
+from .master.graphic import Rectangle
 
-import sys, os
+# custom controller -------------------------------------------
+class Box(BUI):
+	def __init__(self,owner,pos=[0,0],size=[0,0],text="",column=0,row=0):
+		super().__init__()
+		self.owner = owner
+		self.pos.set(pos[0],pos[1])
+		self.pos.auto = True
+		self.size.set(size[0],size[1])
+		self.size.auto = size == [0,0]
+		self.caption.text = text
+		self.caption.align.set(True,False,True,False,False)
+		self.column = column
+		self.row = row
 
-path = os.path.dirname(os.path.realpath(__file__))
-if path not in sys.path:
-	sys.path.append(path)
+		# self.body = Rectangle(self)
+		# self.body.fillet.set(9,9,9,9)
+		# self.body.color.set((0.5,0.5,0.5,0.2),(0.7,0.7,0.7,0.5),(0.9,0.9,0.9,0.8))
+		
+		# self.setup()
+		owner.append(self)
 
-def register():
-	pass
-def unregister():
-	pass
+	# def update(self):
+	# 	if self.owner != None:
+	# 		self.body.size = self.size.copy()
 
-if __name__ == "__main__":
-	register()
+__all__ = ["Box"]
