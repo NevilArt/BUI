@@ -21,6 +21,7 @@ bl_info = {
 	"blender": (2, 80, 0),
 	"location": "Python Script",
 	"wiki_url": "https://github.com/NevilArt/BUI/wiki",
+	"doc_url": "https://github.com/NevilArt/BUI/wiki",
 	"tracker_url": "https://github.com/NevilArt/BUI/issues",
 	"category": "Development"
 }
@@ -29,12 +30,17 @@ import sys, os
 
 path = os.path.dirname(os.path.realpath(__file__))
 if path not in sys.path:
-	sys.path.append(path)
+		sys.path.append(path)
+
+import templates
 
 def register():
-	pass
+	templates.register()
+
 def unregister():
-	pass
+	if path not in sys.path:
+		sys.path.remove(path)
+	templates.unregister()
 
 if __name__ == "__main__":
 	register()

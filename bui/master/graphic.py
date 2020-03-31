@@ -16,7 +16,7 @@
 from math import sin, cos, pi
 from .classes import Colors, Vector2, Corner, Edge
 
-class Rectangle:
+class Graphic:
 	def __init__(self,owner):
 		self.color = Colors()
 		self.vertices = []
@@ -27,13 +27,19 @@ class Rectangle:
 		self.fillet = Corner(0,0,0,0)
 		self.border = Edge(0,0,0,0)
 		owner.graphics.append(self)
-
-	def create_shape_(self,pos,size,state):
+	def create_shape(self,pos,size,state):
 		self.state = state
 		x,y = pos.x+self.offset.x, pos.y+self.offset.y
 		w,h = self.size.x, self.size.y
 		self.vertices = ((x,y),(x+w,y),(x+w,y+h),(x,y+h))
 		self.indices = ((0,1,2),(2,3,0))
+	def get_shape(self):
+		return self.vertices, self.indices, self.color.get(self.state)
+		
+
+class Rectangle(Graphic):
+	def __init__(self,owner):
+		super().__init__(owner)
 
 	def get_start_angle(self,dirx,diry):
 		if dirx == 1 and diry == -1:
@@ -88,20 +94,11 @@ class Rectangle:
 		self.vertices = verts
 		self.indices = inds
 
-	def get_shape(self):
-		return self.vertices, self.indices, self.color.get(self.state)
-
 class Gride:
 	def __init__(self):
-		self.count = Vector2(1,1)
-		self.color = Colors()
-		self.vertices = []
-		self.indices = []
-		self.state = 0
-		self.size = Vector2(0,0)
-		self.offset = Vector2(0,0)
-		self.border = Edge(0,0,0,0)
-		owner.graphics.append(self)
+		def __init__(self,owner):
+			super().__init__(owner)
+			self.count = Vector2(1,1)
 
 	def create_shape(self,pos,size,state):
 		self.state = state
@@ -109,8 +106,5 @@ class Gride:
 		w,h = self.size.x, self.size.y
 		self.vertices = ((x,y),(x+w,y),(x+w,y+h),(x,y+h))
 		self.indices = ((0,1,2),(2,3,0))
-
-	def get_shape(self):
-		return self.vertices, self.indices, self.color.get(self.state)
 
 __all__ = ["Rectangle", "Gride"]

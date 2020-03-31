@@ -47,7 +47,6 @@ class BUI:
 		self.enabled = True
 		self.moveable = False
 		self.destroy = False
-		# self.ignorechildren = False
 		""" Reserved for user funcions """
 		self.onmove = None
 		self.onclick = None
@@ -217,7 +216,8 @@ class BUI:
 						self.active.move(dx,dy)
 				self.mouse.pos = Vector2(x,y)
 
-			self.active.state = 2 if self.mouse.lmb.pressed else 1 if self.hover else 0
+			if self.active != None:
+				self.active.state = 2 if self.mouse.lmb.pressed else 1 if self.hover else 0
 
 	def _append(self,controller):
 		controller.state_fix()
