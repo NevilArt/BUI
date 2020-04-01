@@ -13,8 +13,10 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
 
-from .dialog import Dialog
 from .button import Button
+from .dialog import Dialog
+from .numeric import Numeric
 from .slider import Slider
 
-__all__ = ["Dialog","Button","Slider"]
+
+__all__ = ["Button","Dialog","Numeric","Slider"]
