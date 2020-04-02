@@ -26,7 +26,8 @@ class Box(BUI):
 		self.size.set(size[0],size[1])
 		self.size.auto = size == [0,0]
 		self.caption.text = text
-		self.caption.align.set(True,False,True,False,False)
+		#self.caption.align.set(True,False,True,False,False)
+		self.caption.align.center = True
 		self.column = column
 		self.row = row
 

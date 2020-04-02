@@ -1,16 +1,16 @@
 ############################################################################
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#	This program is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#	You should have received a copy of the GNU General Public License
+#	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
 
 class Vector2:
@@ -232,29 +232,6 @@ class Colors:
 		else:
 			return self.a
 
-class MouseButton:
-	def __init__(self):
-		self.pressed = False
-		self.grab = False
-		self.pos = Vector2(0,0)
-	def delta(self,x,y):
-		return x-self.pos.x, y-self.pos.y
-
-class Mouse:
-	def __init__(self):
-		self.rmb = MouseButton()
-		self.mmb = MouseButton()
-		self.lmb = MouseButton()
-		self.pos = Vector2(0,0)
-	def delta(self,x,y):
-		return x-self.pos.x,y-self.pos.y
-
-class Keyboard:
-	def __init__(self):
-		self.ctrl = False
-		self.shift = False
-		self.alt = False
-
 class Caption:
 	def __init__(self,owner):
 		self.owner = owner
@@ -278,6 +255,5 @@ class Caption:
 		else:
 			return self.pos
 
-__all__ = ["Vector2", "Edge", "Corner", "Scale", "VectorRange2", "Border",
-			"Range", "Align", "Dimension", "Colors", "Caption",
-			"MouseButton", "Mouse", "Keyboard"]
+__all__ = ["Vector2","Edge","Corner","Scale","VectorRange2","Border",
+			"Range","Align","Dimension","Colors","Caption"]

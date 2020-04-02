@@ -17,6 +17,7 @@ from .button import Button
 from .dialog import Dialog
 from .numeric import Numeric
 from .slider import Slider
+from .textbox import TextBox
 
 
-__all__ = ["Button","Dialog","Numeric","Slider"]
+__all__ = ["Button","Dialog","Numeric","Slider","TextBox"]

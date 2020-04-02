@@ -12,9 +12,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
-import itertools
-from .classes import Vector2,Mouse,Keyboard,Edge,Align,Dimension,\
-						Scale,VectorRange2,Caption,Border
+# import itertools
+from .classes import Vector2,Edge,Align,Dimension,Scale,VectorRange2,Caption,Border
+from .input import Mouse,Keyboard
 from .table import Table
 
 class BUI:
@@ -41,6 +41,7 @@ class BUI:
 		self.table = Table(self)
 		""" Flags """
 		self.active = None
+		self.focus = None
 		self.hover = False
 		self.grab = False
 		self.state = 0
@@ -60,10 +61,6 @@ class BUI:
 		self.onmiddlepush = None
 		self.onmiddlerelease = None
 		self.onmiddleclick = None
-	# 	self._setup()
-
-	# def _setup(self):
-	# 	self.table = 
 
 	def reset(self):
 		pass
@@ -115,109 +112,8 @@ class BUI:
 		if self.enabled:
 			for c in self.controllers:
 				captions += c.get_captions()
-			#captions += [c.caption for c in self.controllers]
 			captions.append(self.caption)
 		return captions
-
-	def mouse_hover(self, event, deep=True):
-		if self.enabled:
-			mx,my = event.mouse_region_x, event.mouse_region_y
-			x,y = self.location.x, self.location.y
-			w,h = self.size.x, self.size.y
-			if deep:
-				self.active = self
-				for c in self.controllers:
-					if c.mouse_hover(event):
-						self.active = c if c.active == c else c.active
-						break
-			if self.scale.enabled:
-				s, scale = self.scale.sensitive, self.scale
-				if scale.top:
-					scale.touched.top = y+h-s < my < y+h
-				if scale.bottom:
-					scale.touched.bottom = y < my < y+s
-				if scale.left:
-					scale.touched.left = x < mx < x+s
-				if scale.right:
-					scale.touched.right = x+w-s < mx < x+w
-			return (x < mx < x+w and y < my < y+h)
-		return False
-
-	def mouse_action(self, event):
-		if self.enabled:
-			""" read mouse """
-			x,y = event.mouse_region_x, event.mouse_region_y
-
-			""" get keys state """
-			if event.type in {'LEFT_SHIFT','RIGHT_SHIFT'}:
-				if event.value == 'PRESS':
-					self.kb.shift = True
-				if event.value == 'RELEASE':
-					self.kb.shift = False
-
-			if event.type in {'LEFT_CTRL','RIGHT_CTRL'}:
-				if event.value == 'PRESS':
-					self.kb.ctrl = True
-				if event.value == 'RELEASE':
-					self.kb.ctrl = False
-
-			if event.type in {'LEFT_ALT','RIGHT_ALT'}:
-				if event.value == 'PRESS':
-					self.kb.alt = True
-				if event.value == 'RELEASE':
-					self.kb.alt = False
-
-			if event.type == 'LEFTMOUSE' and self.hover:
-				if event.value == 'PRESS':
-					self.grab = True
-					self.mouse.lmb.pressed = True
-					self.mouse.lmb.pos = Vector2(x,y)
-					self.active.push()
-					self.active.mouse.lmb.grab = True
-				if event.value =='RELEASE':
-					self.grab = False
-					self.mouse.lmb.pressed = False
-					self.active.mouse.lmb.grab = False
-					self.active.release()
-					if self.active.mouse_hover(event,deep=False):
-						self.active.click()
-
-			if event.type == 'MIDDLEMOUSE':
-				if event.value == 'PRESS':
-					self.mouse.mmb.pressed = True
-					self.mouse.mmb.pos = Vector2(x,y)
-					self.active.middlepush()
-				if event.value =='RELEASE':
-					self.mouse.mmb.pressed = False
-					self.active.middlerelease()
-					if self.active.mouse_hover(event,deep=False):
-						self.active.middleclick()
-
-			if event.type == 'RIGHTMOUSE':
-				if event.value == 'PRESS':
-					self.mouse.rmb.pressed = True
-					self.mouse.rmb.pos = Vector2(x,y)
-					self.active.rightpush()
-				if event.value =='RELEASE':
-					self.mouse.rmb.pressed = False
-					self.active.rightrelease()
-					if self.active.mouse_hover(event,deep=False):
-						self.active.rightclick()
-
-			if event.type == 'MOUSEMOVE':
-				dx,dy = self.mouse.delta(x,y)
-				if dx != 0 or dy != 0:
-					if self.mouse.lmb.pressed:
-						if self.active.scale.enabled and self.active.scale.touched.any():
-							self.active.resize(self.active.scale.touched,Vector2(dx,dy))
-						else:
-							self.active.drag(dx,dy)
-					elif self.hover:
-						self.active.move(dx,dy)
-				self.mouse.pos = Vector2(x,y)
-
-			if self.active != None:
-				self.active.state = 2 if self.mouse.lmb.pressed else 1 if self.hover else 0
 
 	def _append(self,controller):
 		controller.state_fix()
@@ -227,15 +123,20 @@ class BUI:
 		self._append(controller)
 
 	# reserved functions #
+	def focus_on(self,me):
+		if self.owner != None:
+			self.owner.focus_on(me)
+		else:
+			self.focus = me
+
 	def setup(self):
 		pass
 	def update(self):
-		pass # self._update()
-	def _update(self):
-		#if not self.ignorechildren:
 		if self.enabled:
 			for c in self.controllers:
 				c.update()
+	def _update(self):
+		self.update()
 
 	def push(self):
 		if self.onpush != None:
@@ -273,10 +174,10 @@ class BUI:
 			self.pos.x += x
 			self.pos.y += y
 		if self.ondrag != None:
-			self.ondrag()
+			self.ondrag(x,y)
 	def move(self,x,y):
 		if self.onmove != None:
-			self.onmove()
+			self.onmove(x,y)
 	def resize(self,edges,value):
 		if edges.left:
 			self.size.x -= value.x

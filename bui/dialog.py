@@ -92,6 +92,7 @@ class Dialog(Operator,BUI):
 		self.escape = False
 		self.size.auto = True
 
+		self.focus = self
 		self.escape = True
 		self.caption.hide = True
 		self.table.gap.set(4,4)
@@ -104,14 +105,11 @@ class Dialog(Operator,BUI):
 		self.body.fillet.set(9,9,9,9)
 		self.body.color.set((0.13,0.13,0.13,1),(0.13,0.13,0.13,1),(0.13,0.13,0.13,1))
 
-	def update(self):
+	def redraw(self):
 		self.table.update()
 		self.titlebar.size.x = self.box.size.x
 		self.body.size.set(self.size.x,self.size.y)
 		self.titlebar.caption += self.caption
-		self._update()
-
-	def redraw(self):
 		self.update()
 
 		for graphic in self.get_graphics():
@@ -139,13 +137,17 @@ class Dialog(Operator,BUI):
 			return {'CANCELLED'}
 
 		if event.type == 'MOUSEMOVE':
-			self.hover = True if self.grab else self.mouse_hover(event)
+			self.hover = True if self.grab else self.mouse.is_hover(self,event)
 
-		self.mouse_action(event)
+		self.mouse.get_action(self,event)
 
 		if not self.hover and not self.grab:
 			self.reset()
 			return {'PASS_THROUGH'}
+
+		# focus = self if self.focus == None else self.focus
+		self.focus.kb.get_action(self,event)
+
 		return {'RUNNING_MODAL'}
 
 	def unregister(self):
