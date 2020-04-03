@@ -18,7 +18,7 @@ from .master.graphic import Rectangle
 
 # custom controller -------------------------------------------
 class Box(BUI):
-	def __init__(self,owner,pos=[0,0],size=[0,0],text="",column=0,row=0):
+	def __init__(self,owner,pos=[0,0],size=[0,0],text="",column=0,row=0,onclick=None):
 		super().__init__()
 		self.owner = owner
 		self.pos.set(pos[0],pos[1])
@@ -26,20 +26,10 @@ class Box(BUI):
 		self.size.set(size[0],size[1])
 		self.size.auto = size == [0,0]
 		self.caption.text = text
-		#self.caption.align.set(True,False,True,False,False)
 		self.caption.align.center = True
 		self.column = column
 		self.row = row
-
-		# self.body = Rectangle(self)
-		# self.body.fillet.set(9,9,9,9)
-		# self.body.color.set((0.5,0.5,0.5,0.2),(0.7,0.7,0.7,0.5),(0.9,0.9,0.9,0.8))
-		
-		# self.setup()
+		self.onclick = onclick
 		owner.append(self)
-
-	# def update(self):
-	# 	if self.owner != None:
-	# 		self.body.size = self.size.copy()
 
 __all__ = ["Box"]

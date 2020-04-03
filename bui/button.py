@@ -43,6 +43,11 @@ class Button(BUI):
 		self.setup()
 		owner.append(self)
 
+	def click(self):
+		self.owner.focus_on(self)
+		if self.onclick != None:
+			self.onclick()
+
 	def update(self):
 		if self.owner != None:
 			self.body.size = self.size.copy()

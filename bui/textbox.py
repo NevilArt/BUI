@@ -44,4 +44,4 @@ class TextBox(BUI):
 	def update(self):
 		self.caption.text = self.kb.str
 
-__all__ = ["Numeric"]
+__all__ = ["TextBox"]

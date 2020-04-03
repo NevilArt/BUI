@@ -23,6 +23,7 @@ class BUI:
 		self.caption = Caption(self)
 		self.icon = None
 		self.graphics = []
+		self.tooltip = ""
 		""" Control data """
 		self.mouse = Mouse()
 		self.kb = Keyboard()

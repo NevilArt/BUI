@@ -14,10 +14,10 @@
 ############################################################################
 
 from .button import Button
+from .checkbox import CheckBox
 from .dialog import Dialog
 from .numeric import Numeric
 from .slider import Slider
 from .textbox import TextBox
 
-
-__all__ = ["Button","Dialog","Numeric","Slider","TextBox"]
+__all__ = ["Button","Dialog","Numeric","Slider","TextBox","CheckBox"]
