@@ -1,41 +1,49 @@
 ############################################################################
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#	This program is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#	You should have received a copy of the GNU General Public License
+#	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
 # import itertools
-from .classes import Vector2,Edge,Align,Dimension,Scale,VectorRange2,Caption,Border
+from .classes import Vector2,Edge,Align,Dimension,Scale,VectorRange2,Border
+from .caption import Caption
 from .input import Mouse,Keyboard
 from .table import Table
 
 class BUI:
-	def __init__(self):
+	def __init__(self, owner=None, pos=[0,0], size=[0,0],
+				text="", column=0, row=0,
+				onmove=None, ondrag=None,
+				onpush=None, onrelease=None,
+				onclick=None, ondoubleclick=None,
+				onrightpush=None, onrightrelease=None,
+				onrightclick=None, onmiddleclick=None,
+				onmiddlepush=None, onmiddlerelease=None):
 		""" Aperiance """
 		self.caption = Caption(self)
+		self.caption.text = text
 		self.icon = None
 		self.graphics = []
 		self.tooltip = ""
 		""" Control data """
 		self.mouse = Mouse()
 		self.kb = Keyboard()
-		self.pos = VectorRange2(0,0)
-		self.size = VectorRange2(0,0)
-		self.column = 0
-		self.row = 0
+		self.pos = VectorRange2(pos[0],pos[1])
+		self.size = VectorRange2(size[0],size[1])
+		self.column = column
+		self.row = row
 		self.location = Vector2(0,0)
 		self.offset = Vector2(0,0)
-		self.owner = None
+		self.owner = owner
 		self.controllers = []
-		self.fit = Edge(False,False,False,False)
 		self.align = Align(False,False,False,False,False)
 		self.border = Border(0,0,0,0)
 		self.scale = Scale(False,True,True,True,True,10)
@@ -47,21 +55,31 @@ class BUI:
 		self.grab = False
 		self.state = 0
 		self.enabled = True
+		self.touchable = True
+		# self.visible = True
 		self.moveable = False
 		self.destroy = False
 		""" Reserved for user funcions """
-		self.onmove = None
-		self.onclick = None
-		self.ondoubleclick = None
-		self.onpush = None
-		self.onrelease = None
-		self.ondrag = None
-		self.onrightpush = None
-		self.onrightrelease = None
-		self.onrightclick = None
-		self.onmiddlepush = None
-		self.onmiddlerelease = None
-		self.onmiddleclick = None
+		self.onmove = onmove
+		self.onclick = onclick
+		self.ondoubleclick = ondoubleclick
+		self.onpush = onpush
+		self.onrelease = onrelease
+		self.ondrag = ondrag
+		self.onrightpush = onrightpush
+		self.onrightrelease = onrightrelease
+		self.onrightclick = onrightclick
+		self.onmiddlepush = onmiddlepush
+		self.onmiddlerelease = onmiddlerelease
+		self.onmiddleclick = onmiddleclick
+
+	""" shorcut to self.caption.text """
+	@property
+	def text(self):
+		return self.caption.text
+	@text.setter
+	def text(self, text):
+		self.caption.text = text
 
 	def reset(self):
 		pass
@@ -75,24 +93,6 @@ class BUI:
 			self.moveable = False
 
 	def arrange(self):
-		##########################################################################
-		# if self.owner != None:
-		# 	size,pos,owner = self.size,self.pos,self.owner
-		# 	border = Edge(0,0,0,0) if owner.border.ignore else self.border
-		# 	dim = Dimension(Vector2(0,0),owner.size)
-		# 	start,end,length = dim.get_start_end_length(border)
-		# 	if self.fit.left:
-		# 		size.x += pos.x-start.x
-		# 		pos.x = start.x
-		# 	if self.fit.right:
-		# 		size.x = length.x
-		# 	if self.fit.bottom:
-		# 		size.y += pos.y-start.y
-		# 		pos.y = start.y
-		# 	if self.fit.top:
-		# 		size.y = length.y
-		##########################################################################
-
 		x,y = (self.owner.location.get() if self.owner != None else (0,0))
 		self.location = Vector2(x,y) + self.pos + self.offset
 		return self.location, self.size

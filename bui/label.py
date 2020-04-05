@@ -13,11 +13,9 @@
 #	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
 from .master.bui import BUI
-from .master.graphic import Rectangle
-# from .box import Box
 
-class TextBox(BUI):
-	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
+class Label(BUI):
+	def __init__(self,owner=None,pos=[0,0],size=[0,0],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,
@@ -32,21 +30,18 @@ class TextBox(BUI):
 				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
 		self.pos.auto = True
-
-		self.body = Rectangle(self)
-		self.body.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
-
-		self.text = ""
+		self.caption.align.set(True,False,False,False,True)
+		self.caption.offset.set(5,0)
+		self.touchable = False
 		self.setup()
 		owner.append(self)
 
 	def setup(self):
-		self.caption.align.set(False,False,False,False,True)
-
-	def click(self):
-		self.owner.focus_on(self)
+		self.size.auto = self.size.x == 0 and self.size.y == 0
 
 	def update(self):
-		self.caption.text = self.kb.str
+		if self.size.auto:
+			size = self.caption.size
+			self.size.set(size.x+4,size.y+4)
 
-__all__ = ["TextBox"]
+__all__ = ["Label"]

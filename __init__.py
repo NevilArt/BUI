@@ -17,7 +17,7 @@ bl_info = {
 	"name": "BUI",
 	"description": "BUI for Blender 2.80 ~ 2.83",
 	"author": "Naser Merati (Nevil)",
-	"version": (0, 1, 0, 20200401),
+	"version": (0, 1, 0, 20200405),
 	"blender": (2, 80, 0),
 	"location": "Python Script",
 	"wiki_url": "https://github.com/NevilArt/BUI/wiki",

@@ -33,7 +33,7 @@ class Mouse:
 		return x-self.pos.x,y-self.pos.y
 
 	def is_hover(cls,self,event,deep=True):
-		if self.enabled:
+		if self.enabled and self.touchable:
 			mx,my = event.mouse_region_x, event.mouse_region_y
 			x,y = self.location.x, self.location.y
 			w,h = self.size.x, self.size.y

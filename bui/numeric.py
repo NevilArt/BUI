@@ -19,14 +19,21 @@ from .button import Button
 from .box import Box
 
 class Numeric(BUI):
-	def __init__(self,owner,pos=[0,0],size=[80,30],text="",column=0,row=0,onclick=None):
-		super().__init__()
-		self.owner = owner
-		self.pos.set(pos[0],pos[1])
+	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
+				onmove=None,ondrag=None,
+				onpush=None,onrelease=None,
+				onclick=None,ondoubleclick=None,
+				onrightpush=None,onrightrelease=None,
+				onrightclick=None,onmiddleclick=None,
+				onmiddlepush=None,onmiddlerelease=None):
+		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
+				onmove=onmove,ondrag=ondrag,
+				onpush=onpush,onrelease=onrelease,
+				onclick=onclick,ondoubleclick=ondoubleclick,
+				onrightpush=onrightpush,onrightrelease=onrightrelease,
+				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
+				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
 		self.pos.auto = True
-		self.size.set(size[0],size[1])
-		self.column = column
-		self.row = row
 
 		self.body = Rectangle(self)
 		self.body.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))

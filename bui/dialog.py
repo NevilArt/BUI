@@ -33,7 +33,6 @@ class TitleBar(BUI):
 		self.size.max.set(7680,4320)
 		self.row = 1
 		self.border.ignore = True
-		self.fit.set(True,True,True,False)
 		self.moveable = True
 		self.pos.auto = True
 		self.caption.align.set(True,False,False,False,True)
@@ -121,9 +120,8 @@ class Dialog(Operator,BUI):
 
 		for caption in self.get_captions():
 			if not caption.hide:
-				blf.size(0,caption.size,72)
-				w,h = blf.dimensions(0,caption.text)
-				location = caption.location(Vector2(w,h))
+				blf.size(0,caption.font_size,72)
+				location = caption.location()
 				blf.position(0,location.x,location.y,0)
 				blf.color(0,1,1,1,1)
 				blf.draw(0,caption.text)

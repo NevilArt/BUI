@@ -14,16 +14,18 @@
 ############################################################################
 from .master.bui import BUI
 from .master.graphic import Rectangle
-# from .box import Box
+from .box import Box
 
-class TextBox(BUI):
+class Check(BUI):
 	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,
 				onrightpush=None,onrightrelease=None,
 				onrightclick=None,onmiddleclick=None,
-				onmiddlepush=None,onmiddlerelease=None):
+				onmiddlepush=None,onmiddlerelease=None,
+				# specila argumnets #
+				checked=False,mode="check"):
 		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
 				onmove=onmove,ondrag=ondrag,
 				onpush=onpush,onrelease=onrelease,
@@ -31,22 +33,43 @@ class TextBox(BUI):
 				onrightpush=onrightpush,onrightrelease=onrightrelease,
 				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
+		self.caption.hide = True
 		self.pos.auto = True
-
-		self.body = Rectangle(self)
-		self.body.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
-
-		self.text = ""
+		self._checked = checked
+		self.mode = mode # check/radio
+		self.touchable = False
 		self.setup()
 		owner.append(self)
 
 	def setup(self):
-		self.caption.align.set(False,False,False,False,True)
+		c1,c2 = 12,6
+		w1,h1 = self.size.x-c1,self.size.y-c1
+		w2,h2 = w1-c2,h1-c2
 
-	def click(self):
-		self.owner.focus_on(self)
+		if self.mode == 'check':
+			r1,r2 = 3,3
+		elif self.mode == 'radio':
+			r1,r2 = min(w1,h1)/2, min(w2,h2)/2
+		else:
+			r1,r2 = 0,0
 
-	def update(self):
-		self.caption.text = self.kb.str
+		self.check = Box(self,size=[w1,h1])
+		self.check.body = Rectangle(self.check)
+		self.check.body.fillet.set(r1,r1,r1,r1)
+		self.check.body.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
+		self.offset.set(c1/2,c1/2)
 
-__all__ = ["TextBox"]
+		self.mark = Box(self.check,size=[w2,h2])
+		self.mark.body = Rectangle(self.mark)
+		self.mark.body.fillet.set(r2,r2,r2,r2)
+		self.mark.body.color.set((0,0,0,1),(0,0,0,1),(0,0,0,1))
+		self.mark.align.center = True
+
+	@property
+	def checked(self):
+		return self._checked
+	@checked.setter
+	def checked(self, state):
+		self.mark.enabled = self._checked = state
+
+__all__ = ["Check"]

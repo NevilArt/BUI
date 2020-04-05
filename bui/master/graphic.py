@@ -36,7 +36,6 @@ class Graphic:
 	def get_shape(self):
 		return self.vertices, self.indices, self.color.get(self.state)
 		
-
 class Rectangle(Graphic):
 	def __init__(self,owner):
 		super().__init__(owner)
@@ -93,6 +92,18 @@ class Rectangle(Graphic):
 				inds.append((0,i,1))
 		self.vertices = verts
 		self.indices = inds
+
+class Circle:
+	def __init__(self):
+		def __init__(self,owner):
+			super().__init__(owner)
+
+	def create_shape(self,pos,size,state):
+		self.state = state
+		x,y = pos.x+self.offset.x, pos.y+self.offset.y
+		w,h = self.size.x, self.size.y
+		self.vertices = ((x,y),(x+w,y),(x+w,y+h),(x,y+h))
+		self.indices = ((0,1,2),(2,3,0))
 
 class Gride:
 	def __init__(self):

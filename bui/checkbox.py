@@ -14,41 +14,41 @@
 ############################################################################
 from .master.bui import BUI
 from .master.graphic import Rectangle
-from .box import Box
+from .check import Check
+from .label import Label
 
 class CheckBox(BUI):
-	def __init__(self,owner,pos=[0,0],size=[80,30],text="",column=0,row=0,onclick=None):
-		super().__init__()
-		self.owner = owner
-		self.pos.set(pos[0],pos[1])
+	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
+				onmove=None,ondrag=None,
+				onpush=None,onrelease=None,
+				onclick=None,ondoubleclick=None,
+				onrightpush=None,onrightrelease=None,
+				onrightclick=None,onmiddleclick=None,
+				onmiddlepush=None,onmiddlerelease=None):
+		super().__init__(owner=owner,pos=pos,size=size,column=column,row=row,
+				onmove=onmove,ondrag=ondrag,
+				onpush=onpush,onrelease=onrelease,
+				onclick=onclick,ondoubleclick=ondoubleclick,
+				onrightpush=onrightpush,onrightrelease=onrightrelease,
+				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
+				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
+		self.caption.hide = True
+		self._text = text
 		self.pos.auto = True
-		self.size.set(size[0],size[1])
-		self.column = column
-		self.row = row
-		self.text = text
 		self.checked = False
 		self.setup()
 		owner.append(self)
 
-	def setup(self):
-		w1,w2,h = self.size.y,self.size.x-self.size.y,self.size.y
-		self.check = Box(self,size=[w1,h],column=1,row=1,onclick=self.check_clicked)
-		self.check.body = Rectangle(self.check)
-		self.check.body.fillet.set(3,3,3,3)
-		self.check.body.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
-		self.mark = Box(self.check,size=[w1-6,h-6],column=1,row=1,onclick=self.check_clicked)
-		self.mark.body = Rectangle(self.mark)
-		self.mark.body.fillet.set(3,3,3,3)
-		self.mark.body.color.set((0,0,0,1),(0,0,0,1),(0,0,0,1))
-		self.mark.align.set(False,False,False,False,True)
-		self.label = Box(self,text=self.text,size=[w2,h],column=2,row=1,onclick=self.check_clicked)
-		self.label.caption.align.set(True,False,False,False,True)
-		self.label.caption.offset.set(3,0)
+	def setup(self):		
+		w,h = self.size.x,self.size.y
+		self.check = Check(self,size=[h,h],column=1,row=1,mode='check')
+		self.label = Label(self,size=[w-h,h],column=2,row=1,text=self._text)
 
-	def check_clicked(self):
+	def click(self):
 		self.owner.focus_on(self)
-		self.checked = not self.checked
-		self.mark.enabled = self.checked
+		self.check.checked = self.checked = not self.checked
+		if self.onclick != None:
+			self.onclick()
 
 	def update(self):
 		pass

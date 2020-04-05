@@ -14,9 +14,14 @@
 ############################################################################
 from .master.bui import BUI
 from .master.graphic import Rectangle
-# from .box import Box
+from .master.caption import Caption
+from .checkbox import CheckBox
+from .box import Box
+from .check import Check
+from .label import Label
 
-class TextBox(BUI):
+
+class RadioButtons(BUI):
 	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
@@ -32,21 +37,51 @@ class TextBox(BUI):
 				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
 		self.pos.auto = True
-
-		self.body = Rectangle(self)
-		self.body.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
-
-		self.text = ""
+		self.size.auto = True
+		""" special variables """
+		self._selected = 0
 		self.setup()
 		owner.append(self)
 
+	def add(self,text="",row=0,column=0):
+		""" get radio size """
+		caption = Caption(None,text=text,font_size=self.caption.font_size)
+		w,h = caption.size.x, caption.size.y
+
+		frame = Box(self,column=column,row=row,onclick=self.picked)
+
+		w,h = frame.size.x,frame.size.y
+		frame.check = Check(frame,size=[h,h],column=1,row=1,mode='radio')
+		frame.label = Label(frame,size=[w-h,h],column=2,row=1,text=text)
+		
 	def setup(self):
-		self.caption.align.set(False,False,False,False,True)
+		pass
+
+	def picked(self):
+		for index,rb in enumerate(self.controllers):
+			rb.check.checked = (rb == self.active)
+			if rb.check.checked:
+				self._selected = index
 
 	def click(self):
 		self.owner.focus_on(self)
+		if self.onclick != None:
+			self.onclick()
+
+	@property
+	def selected(self):
+		return self._selected
+	@selected.setter
+	def selected(self, selected):
+		if selected != self._selected:
+			if 0 < selected < len(self.controllers):
+				for rb in self.controllers:
+					rb.check.checked = False
+				self.controllers[selected].check.checked = True
+				self._selected = selected
 
 	def update(self):
-		self.caption.text = self.kb.str
+		pass
 
-__all__ = ["TextBox"]
+
+__all__ = ["RadioButtons"]

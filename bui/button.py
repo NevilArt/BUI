@@ -18,23 +18,27 @@ from .master.graphic import Rectangle
 
 # custom controller -------------------------------------------
 class Button(BUI):
-	def __init__(self,owner,pos=[0,0],size=[80,30],text="",column=0,row=0,onclick=None):
-		super().__init__()
-		self.owner = owner
-		self.pos.set(pos[0],pos[1])
+	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
+				onmove=None,ondrag=None,
+				onpush=None,onrelease=None,
+				onclick=None,ondoubleclick=None,
+				onrightpush=None,onrightrelease=None,
+				onrightclick=None,onmiddleclick=None,
+				onmiddlepush=None,onmiddlerelease=None):
+		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
+				onmove=onmove,ondrag=ondrag,
+				onpush=onpush,onrelease=onrelease,
+				onclick=onclick,ondoubleclick=ondoubleclick,
+				onrightpush=onrightpush,onrightrelease=onrightrelease,
+				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
+				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
 		self.pos.limit.set(True,True)
 		self.pos.max.set(7680,4320)
 		self.pos.auto = True
-		self.size.set(size[0],size[1])
 		self.size.limit.set(True,True)
 		self.size.min.set(size[0],size[1])
 		self.size.default.set(size[0],size[1])
 		self.size.max.set(7680,4320)
-		self.caption.text = text
-		self.caption.align.center = True
-		self.column = column
-		self.row = row
-		self.onclick = onclick
 		
 		self.body = Rectangle(self)
 		self.body.fillet.set(6,6,6,6)

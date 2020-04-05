@@ -232,28 +232,5 @@ class Colors:
 		else:
 			return self.a
 
-class Caption:
-	def __init__(self,owner):
-		self.owner = owner
-		self.text = ""
-		self.font = ""
-		self.size = 12
-		self.pos = Vector2(0,0)
-		self.offset = Vector2(0,0)
-		self.color = Colors()
-		self.align = Align(False,False,False,False,True)
-		self.hide = False
-	def __iadd__(self, targ):
-		self.text = targ.text
-		self.font = targ.font
-		self.size = targ.size
-		self.pos = targ.pos.copy()
-		return self
-	def location(self,size):
-		if self.owner != None:
-			return self.owner.location+self.align.location(self.owner.size,size)+self.offset
-		else:
-			return self.pos
-
 __all__ = ["Vector2","Edge","Corner","Scale","VectorRange2","Border",
-			"Range","Align","Dimension","Colors","Caption"]
+			"Range","Align","Dimension","Colors"]
