@@ -35,7 +35,7 @@ class CheckBox(BUI):
 		self.caption.hide = True
 		self._text = text
 		self.pos.auto = True
-		self.checked = False
+		self._checked = False
 		self.setup()
 		owner.append(self)
 
@@ -45,12 +45,16 @@ class CheckBox(BUI):
 		self.label = Label(self,size=[w-h,h],column=2,row=1,text=self._text)
 
 	def click(self):
+		self.check.checked = self._checked = not self._checked
 		self.owner.focus_on(self)
-		self.check.checked = self.checked = not self.checked
 		if self.onclick != None:
 			self.onclick()
 
-	def update(self):
-		pass
+	@property
+	def checked(self):
+		return self._checked
+	@checked.setter
+	def checked(self, checked):
+		self.check.checked = self._checked = checked
 
 __all__ = ["CheckBox"]

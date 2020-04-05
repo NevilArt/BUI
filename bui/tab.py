@@ -15,13 +15,10 @@
 from .master.bui import BUI
 from .master.graphic import Rectangle
 from .master.caption import Caption
-from .checkbox import CheckBox
+from .checkbutton import CheckButton
 from .box import Box
-from .check import Check
-from .label import Label
 
-
-class RadioButtons(BUI):
+class Tab(BUI):
 	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
@@ -38,34 +35,48 @@ class RadioButtons(BUI):
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
 		self.pos.auto = True
 		self.size.auto = True
+
 		""" special variables """
 		self._selected = 0
 		self.default = 0
 		self.setup()
 		owner.append(self)
 
-	def add(self,text="",row=0,column=0):
+	def add(self,text=""):
 		""" get radio size """
 		caption = Caption(None,text=text,font_size=self.caption.font_size)
-		w,h = max(80,caption.size.x), max(20,caption.size.y)
+		w,h = caption.size.x, caption.size.y
+		index = len(self.buttons.controllers)
 
-		frame = Box(self,size=[w+h+10,h+10],column=column,row=row,onclick=self.picked)
+		button = CheckButton(self.buttons,text=text,size=[w+20,25],row=2,column=index)
+		button.onclick = self.picked
+		button.body.fillet.bottom_left = 0
+		button.body.fillet.bottom_right = 0
+		button.size.auto = False
+		button.checked = len(self.buttons.controllers)-1 == self.default
 
-		w,h = frame.size.x,frame.size.y
-		frame.check = Check(frame,size=[h,h],column=1,row=1,mode='radio')
-		frame.check.checked = len(self.controllers)-1 == self.default
-		frame.label = Label(frame,size=[w-h,h],column=2,row=1,text=text)
+		page = Box(self.pages,row=1,column=index)
+		page.body = Rectangle(page)
+		page.body.color.set((0.1,0.1,0.1,1),(0.1,0.1,0.1,1),(0.1,0.1,0.1,1))
+		page.table.gap.set(2,2)
+		page.border.set(3,3,3,3)
+		page.enabled = button.checked
 
-		return frame
+		return page
 		
 	def setup(self):
-		pass
+		self.buttons = Box(self,row=2,column=1)
+		self.buttons.table.gap.set(1,0)
+		self.pages = Box(self,row=1,column=1)
+		self.pages.table.gap.set(2,2)
 
 	def picked(self):
-		for index,rb in enumerate(self.controllers):
-			rb.check.checked = (rb == self.active)
-			if rb.check.checked:
+		for index,cbtn in enumerate(self.buttons.controllers):
+			cbtn.checked = (cbtn == self.active)
+			if cbtn.checked:
 				self._selected = index
+		for index,page in enumerate(self.pages.controllers):
+			page.enabled = (index == self._selected)
 
 	def click(self):
 		self.owner.focus_on(self)
@@ -78,10 +89,10 @@ class RadioButtons(BUI):
 	@selected.setter
 	def selected(self, selected):
 		if selected != self._selected:
-			if 0 < selected < len(self.controllers):
-				for rb in self.controllers:
-					rb.check.checked = False
-				self.controllers[selected].check.checked = True
+			if 0 < selected < len(self.buttons.controllers):
+				for cbtn in self.buttons.controllers:
+					cbtn.checked = False
+				self.buttons.controllers[selected].checked = True
 				self._selected = selected
 
-__all__ = ["RadioButtons"]
+__all__ = ["Tab"]

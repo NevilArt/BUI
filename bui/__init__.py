@@ -13,14 +13,22 @@
 #	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
 
+from .box import Box
 from .button import Button
 from .check import Check
+from .checkbutton import CheckButton
 from .checkbox import CheckBox
 from .dialog import Dialog
 from .label import Label
 from .numeric import Numeric
 from .radiobuttons import RadioButtons
 from .slider import Slider
+from .tab import Tab
 from .textbox import TextBox
 
-__all__ = ["Button","Check","CheckBox","Dialog","Label","Numeric","RadioButtons","Slider","TextBox"]
+__all__ = ["Box",
+			"Button","Check","CheckBox",
+			"CheckButton",
+			"Dialog","Label","Numeric",
+			"RadioButtons","Slider",
+			"Tab","TextBox"]

@@ -20,13 +20,17 @@ from .box import Box
 
 class Numeric(BUI):
 	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
+				onupdate=None,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,
 				onrightpush=None,onrightrelease=None,
 				onrightclick=None,onmiddleclick=None,
-				onmiddlepush=None,onmiddlerelease=None):
+				onmiddlepush=None,onmiddlerelease=None,
+				# special parameters #
+				minimum=0,maximum=100,default=0):
 		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
+				onupdate=onupdate,
 				onmove=onmove,ondrag=ondrag,
 				onpush=onpush,onrelease=onrelease,
 				onclick=onclick,ondoubleclick=ondoubleclick,
@@ -38,7 +42,7 @@ class Numeric(BUI):
 		self.body = Rectangle(self)
 		self.body.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
 
-		self.value = Range(0,100,20)
+		self.value = Range(minimum,maximum,default)
 		self.setup()
 		owner.append(self)
 
@@ -46,7 +50,7 @@ class Numeric(BUI):
 		w,h = self.size.x-(self.size.y*2),self.size.y
 		self.btn_left = Button(self,size=[h,h],column=1,row=1,text="<",onclick=self.btn_left_clicked)
 		self.btn_left.ondrag = self.numeric_draged
-		self.text_box = Box(self,size=[w,h],column=2,row=1,text="20")
+		self.text_box = Box(self,size=[w,h],column=2,row=1,text="0")
 		self.text_box.caption.align.set(False,False,False,False,True)
 		self.text_box.ondrag = self.numeric_draged
 		self.btn_right = Button(self,size=[h,h],column=3,row=1,text=">",onclick=self.btn_right_clicked)
@@ -55,13 +59,16 @@ class Numeric(BUI):
 	def btn_left_clicked(self):
 		self.value.value -= 1
 		self.owner.focus_on(self)
+		self.updated()
 
 	def btn_right_clicked(self):
 		self.value.value += 1
 		self.owner.focus_on(self)
+		self.updated()
 
 	def numeric_draged(self,x,y):
 		self.value.value += x
+		self.updated()
 
 	def update(self):
 		self.text_box.caption.text = str(self.value.value)

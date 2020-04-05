@@ -17,8 +17,8 @@ from .master.bui import BUI
 from .master.graphic import Rectangle
 
 # custom controller -------------------------------------------
-class Box(BUI):
-	def __init__(self,owner=None,pos=[0,0],size=[0,0],text="",column=0,row=0,
+class CheckButton(BUI):
+	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,
@@ -32,9 +32,34 @@ class Box(BUI):
 				onrightpush=onrightpush,onrightrelease=onrightrelease,
 				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
+		self.pos.limit.set(True,True)
+		self.pos.max.set(7680,4320)
 		self.pos.auto = True
-		self.size.auto = (size == [0,0])
-		self.table.gap.set(1,1)
+		self.size.limit.set(True,True)
+		self.size.min.set(size[0],size[1])
+		self.size.default.set(size[0],size[1])
+		self.size.max.set(7680,4320)
+		
+		self.body = Rectangle(self)
+		self.body.fillet.set(6,6,6,6)
+		self.body.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
+
+		self.checked = False
+		self.setup()
 		owner.append(self)
 
-__all__ = ["Box"]
+	def click(self):
+		self.checked = not self.checked
+		self.owner.focus_on(self)
+		if self.onclick != None:
+			self.onclick()
+
+	def update(self):
+		if self.checked:
+			self.state = 2
+		else:
+			self.state = 0
+		if self.owner != None:
+			self.body.size = self.size.copy()
+
+__all__ = ["CheckButton"]

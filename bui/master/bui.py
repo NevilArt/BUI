@@ -21,6 +21,7 @@ from .table import Table
 class BUI:
 	def __init__(self, owner=None, pos=[0,0], size=[0,0],
 				text="", column=0, row=0,
+				onupdate=None,
 				onmove=None, ondrag=None,
 				onpush=None, onrelease=None,
 				onclick=None, ondoubleclick=None,
@@ -60,6 +61,7 @@ class BUI:
 		self.moveable = False
 		self.destroy = False
 		""" Reserved for user funcions """
+		self.onupdate = onupdate
 		self.onmove = onmove
 		self.onclick = onclick
 		self.ondoubleclick = ondoubleclick
@@ -139,6 +141,9 @@ class BUI:
 	def _update(self):
 		self.update()
 
+	def updated(self):
+		if self.onupdate != None:
+			self.onupdate()
 	def push(self):
 		if self.onpush != None:
 			self.onpush()

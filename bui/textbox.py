@@ -34,11 +34,19 @@ class TextBox(BUI):
 		self.pos.auto = True
 
 		self.body = Rectangle(self)
+		self.body.fillet.set(6,6,6,6)
 		self.body.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
 
-		self.text = ""
+		# self.text = ""
 		self.setup()
 		owner.append(self)
+
+	@property
+	def text(self):
+		return self.caption.text
+	@text.setter
+	def text(self, text):
+		self.kb.str = text
 
 	def setup(self):
 		self.caption.align.set(False,False,False,False,True)
