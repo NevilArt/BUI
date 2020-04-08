@@ -19,7 +19,7 @@ from .button import Button
 from .box import Box
 
 class Numeric(BUI):
-	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
+	def __init__(self,owner=None,pos=[0,0],size=[100,30],text="",column=0,row=0,
 				onupdate=None,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
@@ -30,6 +30,7 @@ class Numeric(BUI):
 				# special parameters #
 				minimum=0,maximum=100,default=0):
 		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
+				background=True,
 				onupdate=onupdate,
 				onmove=onmove,ondrag=ondrag,
 				onpush=onpush,onrelease=onrelease,
@@ -39,8 +40,7 @@ class Numeric(BUI):
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
 		self.pos.auto = True
 
-		self.body = Rectangle(self)
-		self.body.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
+		self.background.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
 
 		self.value = Range(minimum,maximum,default)
 		self.setup()
@@ -59,18 +59,21 @@ class Numeric(BUI):
 	def btn_left_clicked(self):
 		self.value.value -= 1
 		self.owner.focus_on(self)
-		self.updated()
+		if self.onupdate != None:
+			self.onupdate()
 
 	def btn_right_clicked(self):
 		self.value.value += 1
 		self.owner.focus_on(self)
-		self.updated()
+		if self.onupdate != None:
+			self.onupdate()
 
 	def numeric_draged(self,x,y):
 		self.value.value += x
-		self.updated()
+		if self.onupdate != None:
+			self.onupdate()
 
-	def update(self):
+	def local_update(self):
 		self.text_box.caption.text = str(self.value.value)
 
 __all__ = ["Numeric"]

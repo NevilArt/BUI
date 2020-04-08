@@ -26,12 +26,14 @@ class CheckButton(BUI):
 				onrightclick=None,onmiddleclick=None,
 				onmiddlepush=None,onmiddlerelease=None):
 		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
+				background=True,
 				onmove=onmove,ondrag=ondrag,
 				onpush=onpush,onrelease=onrelease,
 				onclick=onclick,ondoubleclick=ondoubleclick,
 				onrightpush=onrightpush,onrightrelease=onrightrelease,
 				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
+
 		self.pos.limit.set(True,True)
 		self.pos.max.set(7680,4320)
 		self.pos.auto = True
@@ -40,9 +42,8 @@ class CheckButton(BUI):
 		self.size.default.set(size[0],size[1])
 		self.size.max.set(7680,4320)
 		
-		self.body = Rectangle(self)
-		self.body.fillet.set(6,6,6,6)
-		self.body.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
+		self.background.fillet.set(6,6,6,6)
+		self.background.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
 
 		self.checked = False
 		self.setup()
@@ -54,12 +55,10 @@ class CheckButton(BUI):
 		if self.onclick != None:
 			self.onclick()
 
-	def update(self):
+	def local_update(self):
 		if self.checked:
 			self.state = 2
 		else:
 			self.state = 0
-		if self.owner != None:
-			self.body.size = self.size.copy()
 
 __all__ = ["CheckButton"]

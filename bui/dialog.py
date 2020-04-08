@@ -22,8 +22,8 @@ from .button import Button
 from .box import Box
 
 class TitleBar(BUI):
-	def __init__(self, owner):
-		super().__init__()
+	def __init__(self,owner):
+		super().__init__(background=True)
 		""" public values """
 		self.owner = owner
 		self.size.auto = False
@@ -38,9 +38,8 @@ class TitleBar(BUI):
 		self.caption.align.set(True,False,False,False,True)
 		self.caption.offset.set(5,0)
 		""" graphics """
-		self.body = Rectangle(self)
-		self.body.fillet.set(6,6,0,0)
-		self.body.color.set((0.3,0.3,0.3,1),(0.3,0.3,0.3,1),(0.32,0.32,0.34,1))
+		self.background.color.set((0.3,0.3,0.3,1),(0.3,0.3,0.3,1),(0.32,0.32,0.34,1))
+		self.background.fillet.set(6,6,0,0)
 		""" special """
 		self.setup()
 		owner._append(self)
@@ -54,9 +53,9 @@ class TitleBar(BUI):
 	def collaps_btn_pressed(self):
 		self.owner.box.enabled = not self.owner.box.enabled
 		if self.owner.box.enabled:
-			self.body.fillet.set(6,6,0,0)
+			self.background.fillet.set(6,6,0,0)
 		else:
-			self.body.fillet.set(6,6,6,6)
+			self.background.fillet.set(6,6,6,6)
 	
 	def setup(self):
 		self.box = Box(self,column=4)
@@ -78,13 +77,12 @@ class DlgBox(BUI):
 		self.owner = owner
 		self.pos.auto = True
 		self.size.auto = True
-		# self.border.set(3,3,3,3)
 		self.table.gap.set(2,2)
 		owner._append(self)
 
 class Dialog(Operator,BUI):
 	def __init__(self):
-		super().__init__()
+		super().__init__(background=True)
 		self.handler = None
 		self.active_space = None
 		self.shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
@@ -100,14 +98,14 @@ class Dialog(Operator,BUI):
 		self.titlebar = TitleBar(self)
 		self.table.create()
 
-		self.body = Rectangle(self)
-		self.body.fillet.set(9,9,9,9)
-		self.body.color.set((0.13,0.13,0.13,1),(0.13,0.13,0.13,1),(0.13,0.13,0.13,1))
+		self.background.color.set((0.13,0.13,0.13,1),(0.13,0.13,0.13,1),(0.13,0.13,0.13,1))
+		self.background.fillet.set(9,9,9,9)
 
 	def redraw(self):
 		self.table.update()
 		self.titlebar.size.x = self.box.size.x
-		self.body.size.set(self.size.x,self.size.y)
+		self.background.width = self.size.x
+		self.background.height = self.size.y
 		self.titlebar.caption += self.caption
 		self.update()
 

@@ -25,7 +25,7 @@ class Check(BUI):
 				onrightclick=None,onmiddleclick=None,
 				onmiddlepush=None,onmiddlerelease=None,
 				# specila argumnets #
-				checked=False,mode="check"):
+				checked=False,mode="check",side="left"):
 		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
 				onmove=onmove,ondrag=ondrag,
 				onpush=onpush,onrelease=onrelease,
@@ -37,6 +37,7 @@ class Check(BUI):
 		self.pos.auto = True
 		self._checked = checked
 		self.mode = mode # check/radio
+		self.side = side # left/right
 		self.touchable = False
 		self.setup()
 		owner.append(self)
@@ -46,6 +47,13 @@ class Check(BUI):
 		w1,h1 = self.size.x-c1,self.size.y-c1
 		w2,h2 = w1-c2,h1-c2
 
+		if self.side == 'left':
+			self.align.set(True,False,False,False,True)
+		elif self.side == 'right':
+			self.align.set(False,True,False,False,True)
+		else:
+			self.align.set(False,False,False,False,True)
+
 		if self.mode == 'check':
 			r1,r2 = 3,3
 		elif self.mode == 'radio':
@@ -53,23 +61,29 @@ class Check(BUI):
 		else:
 			r1,r2 = 0,0
 
-		self.check = Box(self,size=[w1,h1])
-		self.check.body = Rectangle(self.check)
-		self.check.body.fillet.set(r1,r1,r1,r1)
-		self.check.body.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
-		self.offset.set(c1/2,c1/2)
+		self.frame = Rectangle(self)
+		self.frame.fillet.set(r1,r1,r1,r1)
+		self.frame.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
+		
+		self.mark = Rectangle(self)
+		self.mark.fillet.set(r2,r2,r2,r2)
+		self.mark.color.set((0,0,0,1),(0,0,0,1),(0,0,0,1))
 
-		self.mark = Box(self.check,size=[w2,h2])
-		self.mark.body = Rectangle(self.mark)
-		self.mark.body.fillet.set(r2,r2,r2,r2)
-		self.mark.body.color.set((0,0,0,1),(0,0,0,1),(0,0,0,1))
-		self.mark.align.center = True
+	def local_update(self):
+		c1,c2 = 12,6
+		w1,h1 = self.size.x-c1,self.size.y-c1
+		w2,h2 = w1-c2,h1-c2
+		self.frame.width = w1
+		self.frame.height = h1
+		self.mark.width = w2
+		self.mark.height = h2
 
 	@property
 	def checked(self):
 		return self._checked
 	@checked.setter
 	def checked(self, state):
-		self.mark.enabled = self._checked = state
+		self._checked = state
+		self.mark.hide = not state
 
 __all__ = ["Check"]

@@ -14,16 +14,17 @@
 ############################################################################
 from .master.bui import BUI
 from .master.graphic import Rectangle
-# from .box import Box
 
-class TextBox(BUI):
+class ProgressBar(BUI):
 	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,
 				onrightpush=None,onrightrelease=None,
 				onrightclick=None,onmiddleclick=None,
-				onmiddlepush=None,onmiddlerelease=None):
+				onmiddlepush=None,onmiddlerelease=None,
+				# Special parameters #
+				percent=0):
 		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
 				background=True,
 				onmove=onmove,ondrag=ondrag,
@@ -32,30 +33,25 @@ class TextBox(BUI):
 				onrightpush=onrightpush,onrightrelease=onrightrelease,
 				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
+
 		self.pos.auto = True
 
-		self.background.fillet.set(6,6,6,6)
-		self.background.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
+		self.percent = percent
 
-		self.kb.str = text
+		self.background.color.set((0.415,0.415,0.415,1),(0.415,0.415,0.415,1),(0.415,0.415,0.415,1))
+		self.background.fillet.set(3,3,3,3)
 
-		self.setup()
+		self.bar = Rectangle(self)
+		self.bar.color.set((0.0,0.0,0.5,1),(0.0,0.0,0.5,1),(0.0,0.0,0.5,1))
+		self.bar.align.left = True
+
 		owner.append(self)
 
-	@property
-	def text(self):
-		return self.caption.text
-	@text.setter
-	def text(self, text):
-		self.kb.str = text
-
-	def setup(self):
-		self.caption.align.set(False,False,False,False,True)
-
-	def click(self):
-		self.owner.focus_on(self)
-
 	def local_update(self):
-		self.caption.text = self.kb.str
+		self.percent = 0 if self.percent < 0 else 100 if self.percent > 100 else self.percent
+		scale = 0 if self.percent == 0 else self.percent/100
+		self.bar.width = self.size.x*scale
+		self.bar.height = self.size.y
+		self.caption.text = str(self.percent)
 
-__all__ = ["TextBox"]
+__all__ = ["ProgressBar"]

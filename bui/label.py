@@ -39,7 +39,7 @@ class Label(BUI):
 	def setup(self):
 		self.size.auto = self.size.x == 0 and self.size.y == 0
 
-	def update(self):
+	def local_update(self):
 		if self.size.auto:
 			size = self.caption.size
 			self.size.set(size.x+4,size.y+4)

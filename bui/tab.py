@@ -50,14 +50,13 @@ class Tab(BUI):
 
 		button = CheckButton(self.buttons,text=text,size=[w+20,25],row=2,column=index)
 		button.onclick = self.picked
-		button.body.fillet.bottom_left = 0
-		button.body.fillet.bottom_right = 0
+		button.background.fillet.bottom_left = 0
+		button.background.fillet.bottom_right = 0
 		button.size.auto = False
 		button.checked = len(self.buttons.controllers)-1 == self.default
 
-		page = Box(self.pages,row=1,column=index)
-		page.body = Rectangle(page)
-		page.body.color.set((0.1,0.1,0.1,1),(0.1,0.1,0.1,1),(0.1,0.1,0.1,1))
+		page = Box(self.pages,background=True,row=1,column=index)
+		page.background.color.set((0.1,0.1,0.1,1),(0.1,0.1,0.1,1),(0.1,0.1,0.1,1))
 		page.table.gap.set(2,2)
 		page.border.set(3,3,3,3)
 		page.enabled = button.checked

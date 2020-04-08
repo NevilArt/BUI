@@ -17,10 +17,12 @@ from .classes import Vector2,Edge,Align,Dimension,Scale,VectorRange2,Border
 from .caption import Caption
 from .input import Mouse,Keyboard
 from .table import Table
+from .graphic import Rectangle
 
 class BUI:
 	def __init__(self, owner=None, pos=[0,0], size=[0,0],
 				text="", column=0, row=0,
+				background=False,
 				onupdate=None,
 				onmove=None, ondrag=None,
 				onpush=None, onrelease=None,
@@ -28,12 +30,6 @@ class BUI:
 				onrightpush=None, onrightrelease=None,
 				onrightclick=None, onmiddleclick=None,
 				onmiddlepush=None, onmiddlerelease=None):
-		""" Aperiance """
-		self.caption = Caption(self)
-		self.caption.text = text
-		self.icon = None
-		self.graphics = []
-		self.tooltip = ""
 		""" Control data """
 		self.mouse = Mouse()
 		self.kb = Keyboard()
@@ -41,8 +37,8 @@ class BUI:
 		self.size = VectorRange2(size[0],size[1])
 		self.column = column
 		self.row = row
-		self.location = Vector2(0,0)
 		self.offset = Vector2(0,0)
+		self.location = Vector2(0,0)
 		self.owner = owner
 		self.controllers = []
 		self.align = Align(False,False,False,False,False)
@@ -57,7 +53,7 @@ class BUI:
 		self.state = 0
 		self.enabled = True
 		self.touchable = True
-		# self.visible = True
+		self.visible = True
 		self.moveable = False
 		self.destroy = False
 		""" Reserved for user funcions """
@@ -74,6 +70,13 @@ class BUI:
 		self.onmiddlepush = onmiddlepush
 		self.onmiddlerelease = onmiddlerelease
 		self.onmiddleclick = onmiddleclick
+		""" Aperiance """
+		self.caption = Caption(self)
+		self.caption.text = text
+		self.icon = None
+		self.graphics = []
+		self.tooltip = ""
+		self.background = Rectangle(self) if background else None
 
 	""" shorcut to self.caption.text """
 	@property
@@ -97,14 +100,13 @@ class BUI:
 	def arrange(self):
 		x,y = (self.owner.location.get() if self.owner != None else (0,0))
 		self.location = Vector2(x,y) + self.pos + self.offset
-		return self.location, self.size
 
 	def get_graphics(self):
 		graphics = []
-		if self.enabled:
-			pos,size = self.arrange()
+		if self.enabled and self.visible:
+			self.arrange()
 			for graphic in self.graphics:
-				graphic.create_shape(pos, size, self.state)
+				graphic.create_shape()
 				graphics.append(graphic)
 			for controller in self.controllers:
 				graphics += controller.get_graphics()
@@ -134,10 +136,16 @@ class BUI:
 
 	def setup(self):
 		pass
+	def local_update(self):
+		pass
 	def update(self):
+		if self.background != None:
+			self.background.width = self.size.x
+			self.background.height = self.size.y
 		if self.enabled:
 			for c in self.controllers:
 				c.update()
+		self.local_update()
 	def _update(self):
 		self.update()
 

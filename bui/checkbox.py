@@ -32,6 +32,7 @@ class CheckBox(BUI):
 				onrightpush=onrightpush,onrightrelease=onrightrelease,
 				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
+
 		self.caption.hide = True
 		self._text = text
 		self.pos.auto = True

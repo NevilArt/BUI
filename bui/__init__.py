@@ -21,6 +21,7 @@ from .checkbox import CheckBox
 from .dialog import Dialog
 from .label import Label
 from .numeric import Numeric
+from .progressbar import ProgressBar
 from .radiobuttons import RadioButtons
 from .slider import Slider
 from .tab import Tab
@@ -30,5 +31,6 @@ __all__ = ["Box",
 			"Button","Check","CheckBox",
 			"CheckButton",
 			"Dialog","Label","Numeric",
+			"ProgressBar",
 			"RadioButtons","Slider",
 			"Tab","TextBox"]

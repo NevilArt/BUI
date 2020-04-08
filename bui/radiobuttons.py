@@ -36,6 +36,7 @@ class RadioButtons(BUI):
 				onrightpush=onrightpush,onrightrelease=onrightrelease,
 				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
+
 		self.pos.auto = True
 		self.size.auto = True
 		""" special variables """

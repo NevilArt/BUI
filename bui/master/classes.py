@@ -29,6 +29,8 @@ class Vector2:
 		return Vector2(self.x+vec.x,self.y+vec.y)
 	def __iadd__(self, vec):
 		return Vector2(self.x+vec.x,self.y+vec.y)
+	def __eq__(self, vec):
+		return self.x == vec.x and self.y == vec.y
 
 class VectorRange2:
 	def __init__(self,x,y):
@@ -122,6 +124,11 @@ class Corner:
 		self.bottom_right = bottom_right
 	def copy(self):
 		return Corner(self.top_left,self.top_right,self.bottom_left,self.bottom_right)
+	def __eq__(self, other):
+		return self.top_left == other.top_left and\
+			self.top_right == other.top_right and\
+			self.bottom_left == other.bottom_left and\
+			self.bottom_right == other.bottom_right
 
 class Range:
 	def __init__(self, minval, maxval, default):
@@ -130,7 +137,7 @@ class Range:
 		self.min = minval
 		self.max = maxval
 		self.default = default
-		self.value = default
+		self._value = default
 		self.check()
 	def check(self):
 		if self.max < self.min:
@@ -141,6 +148,12 @@ class Range:
 		return Range(self.min,self.maxval,self.default)
 	def reset(self):
 		self.value = self.default
+	@property
+	def value(self):
+		return self._value
+	@value.setter
+	def value(self, value):
+		self._value = self.min if value < self.min else self.max if value > self.max else value
 	def get_lenght(self):
 		return self.max - self.min
 	def get_negative_lenght(self):

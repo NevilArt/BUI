@@ -26,6 +26,7 @@ class Button(BUI):
 				onrightclick=None,onmiddleclick=None,
 				onmiddlepush=None,onmiddlerelease=None):
 		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
+				background=True,
 				onmove=onmove,ondrag=ondrag,
 				onpush=onpush,onrelease=onrelease,
 				onclick=onclick,ondoubleclick=ondoubleclick,
@@ -40,20 +41,15 @@ class Button(BUI):
 		self.size.default.set(size[0],size[1])
 		self.size.max.set(7680,4320)
 		
-		self.body = Rectangle(self)
-		self.body.fillet.set(6,6,6,6)
-		self.body.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
+		self.background.fillet.set(6,6,6,6)
+		self.background.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
 
-		self.setup()
+		# self.setup()
 		owner.append(self)
 
 	def click(self):
 		self.owner.focus_on(self)
 		if self.onclick != None:
 			self.onclick()
-
-	def update(self):
-		if self.owner != None:
-			self.body.size = self.size.copy()
 
 __all__ = ["Button"]

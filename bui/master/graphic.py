@@ -13,32 +13,55 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
 
-from math import sin, cos, pi
-from .classes import Colors, Vector2, Corner, Edge
+from math import sin,cos,pi
+from .classes import Colors,Vector2,Corner,Edge,Align
 
 class Graphic:
 	def __init__(self,owner):
 		self.color = Colors()
 		self.vertices = []
 		self.indices = []
-		self.state = 0
-		self.size = Vector2(0,0)
+		self.hide = False
+		self.owner = owner
 		self.offset = Vector2(0,0)
-		self.fillet = Corner(0,0,0,0)
-		self.border = Edge(0,0,0,0)
+		self.align = Align(False,False,False,False,True)
 		owner.graphics.append(self)
-	def create_shape(self,pos,size,state):
-		self.state = state
-		x,y = pos.x+self.offset.x, pos.y+self.offset.y
-		w,h = self.size.x, self.size.y
+	def is_updated(self):
+		return True
+	def create_shape(self):
+		x = self.owner.location.x+self.offset.x
+		y = self.owner.location.y+self.offset.y
+		w = self.owner.size.x
+		h = self.owner.size.y
 		self.vertices = ((x,y),(x+w,y),(x+w,y+h),(x,y+h))
 		self.indices = ((0,1,2),(2,3,0))
 	def get_shape(self):
-		return self.vertices, self.indices, self.color.get(self.state)
+		if self.hide:
+			return [],[],(0,0,0,0)
+		if self.is_updated():
+			self.create_shape()
+		return self.vertices, self.indices, self.color.get(self.owner.state)
 		
 class Rectangle(Graphic):
-	def __init__(self,owner):
+	def __init__(self,owner,width=0,height=0,fillet=[0,0,0,0]):
 		super().__init__(owner)
+		self.width = width
+		self._width = width
+		self.height = height
+		self._height = height
+		ul,ur,dl,dr = fillet
+		self.fillet = Corner(ul,ur,dl,dr)
+		self._fillet = Corner(ul,ur,dl,dr)
+		self.create_shape()
+
+	def is_updated(self):
+		return self.width == self._width and\
+			self.height == self._height and\
+			self.fillet == self._fillet
+	def updated(self):
+		self._width = self.width
+		self._height = self.height
+		self._fillet = self.fillet.copy()
 
 	def get_start_angle(self,dirx,diry):
 		if dirx == 1 and diry == -1:
@@ -73,16 +96,19 @@ class Rectangle(Graphic):
 			verts[i][1] += orig.y
 		return verts
 
-	def create_shape(self,pos,size,state):
-		self.state = state
+	def create_shape(self):
+		width,height = self.width,self.height
+		size = Vector2(width,height)
+		pos = self.owner.location + self.offset + self.align.location(self.owner.size,size)
+		
 		verts,inds = [],[]
-		center = Vector2(pos.x+size.x/2,pos.y+size.y/2)
+		center = Vector2(pos.x+width/2,pos.y+height/2)
 		verts.append((center.x,center.y))
 		
-		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.top_right,1,1)
-		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.bottom_right,1,-1)
-		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.bottom_left,-1,-1)
-		verts += self.get_corner(center,size.x/2,size.y/2,self.fillet.top_left,-1,1)
+		verts += self.get_corner(center,width/2,height/2,self.fillet.top_right,1,1)
+		verts += self.get_corner(center,width/2,height/2,self.fillet.bottom_right,1,-1)
+		verts += self.get_corner(center,width/2,height/2,self.fillet.bottom_left,-1,-1)
+		verts += self.get_corner(center,width/2,height/2,self.fillet.top_left,-1,1)
 
 		count = len(verts)
 		for i in range(1,count):
@@ -92,16 +118,19 @@ class Rectangle(Graphic):
 				inds.append((0,i,1))
 		self.vertices = verts
 		self.indices = inds
+		self.updated()
 
 class Circle:
-	def __init__(self):
+	def __init__(self,radius=0):
 		def __init__(self,owner):
 			super().__init__(owner)
-
-	def create_shape(self,pos,size,state):
-		self.state = state
-		x,y = pos.x+self.offset.x, pos.y+self.offset.y
-		w,h = self.size.x, self.size.y
+			self.radius = radius
+			self._radius = radius
+	def is_updated(self):
+		return self.radius == self._radius
+	def create_shape(self):
+		x,y = self.owner.location.x, self.owner.location.y
+		w,h = self.owner.size.x, self.owner.size.y
 		self.vertices = ((x,y),(x+w,y),(x+w,y+h),(x,y+h))
 		self.indices = ((0,1,2),(2,3,0))
 
@@ -110,7 +139,8 @@ class Gride:
 		def __init__(self,owner):
 			super().__init__(owner)
 			self.count = Vector2(1,1)
-
+	def is_updated(self):
+		return True
 	def create_shape(self,pos,size,state):
 		self.state = state
 		x,y = pos.x+self.offset.x, pos.y+self.offset.y

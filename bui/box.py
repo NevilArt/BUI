@@ -19,6 +19,7 @@ from .master.graphic import Rectangle
 # custom controller -------------------------------------------
 class Box(BUI):
 	def __init__(self,owner=None,pos=[0,0],size=[0,0],text="",column=0,row=0,
+				background=False,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,
@@ -26,6 +27,7 @@ class Box(BUI):
 				onrightclick=None,onmiddleclick=None,
 				onmiddlepush=None,onmiddlerelease=None):
 		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
+				background=background,
 				onmove=onmove,ondrag=ondrag,
 				onpush=onpush,onrelease=onrelease,
 				onclick=onclick,ondoubleclick=ondoubleclick,
