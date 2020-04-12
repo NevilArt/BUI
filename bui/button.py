@@ -18,7 +18,7 @@ from .master.graphic import Rectangle
 
 # custom controller -------------------------------------------
 class Button(BUI):
-	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
+	def __init__(self,owner,pos=[0,0],size=[80,30],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,
@@ -40,11 +40,8 @@ class Button(BUI):
 		self.size.min.set(size[0],size[1])
 		self.size.default.set(size[0],size[1])
 		self.size.max.set(7680,4320)
-		
 		self.background.fillet.set(6,6,6,6)
 		self.background.color.set((0.345,0.345,0.345,1),(0.415,0.415,0.415,1),(0.474,0.620,0.843,1))
-
-		# self.setup()
 		owner.append(self)
 
 	def click(self):

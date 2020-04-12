@@ -31,29 +31,31 @@ class Mouse:
 	
 	def delta(self,x,y):
 		return x-self.pos.x,y-self.pos.y
-
+	
 	def is_hover(cls,self,event,deep=True):
 		if self.enabled and self.touchable:
 			mx,my = event.mouse_region_x, event.mouse_region_y
 			x,y = self.location.x, self.location.y
 			w,h = self.size.x, self.size.y
-			if deep:
-				self.active = self
-				for c in self.controllers:
-					if c.mouse.is_hover(c,event):
-						self.active = c if c.active == c else c.active
-						break
-			if self.scale.enabled:
-				s, scale = self.scale.sensitive, self.scale
-				if scale.top:
-					scale.touched.top = y+h-s < my < y+h
-				if scale.bottom:
-					scale.touched.bottom = y < my < y+s
-				if scale.left:
-					scale.touched.left = x < mx < x+s
-				if scale.right:
-					scale.touched.right = x+w-s < mx < x+w
-			return (x < mx < x+w and y < my < y+h)
+			hover = (x < mx < x+w and y < my < y+h)
+			if hover:
+				if deep:
+					self.active = self
+					for c in self.controllers:
+						if c.mouse.is_hover(c,event):
+							self.active = c if c.active == c else c.active
+							break
+				if self.scale.enabled:
+					s, scale = self.scale.sensitive, self.scale
+					if scale.top:
+						scale.touched.top = y+h-s < my < y+h
+					if scale.bottom:
+						scale.touched.bottom = y < my < y+s
+					if scale.left:
+						scale.touched.left = x < mx < x+s
+					if scale.right:
+						scale.touched.right = x+w-s < mx < x+w
+			return hover
 		return False
 
 	def get_action(cls,self,event):

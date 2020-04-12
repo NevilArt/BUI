@@ -12,7 +12,6 @@
 #	You should have received a copy of the GNU General Public License
 #	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
-# import itertools
 from .classes import Vector2,Edge,Align,Dimension,Scale,VectorRange2,Border
 from .caption import Caption
 from .input import Mouse,Keyboard
@@ -78,14 +77,6 @@ class BUI:
 		self.tooltip = ""
 		self.background = Rectangle(self) if background else None
 
-	""" shorcut to self.caption.text """
-	@property
-	def text(self):
-		return self.caption.text
-	@text.setter
-	def text(self, text):
-		self.caption.text = text
-
 	def reset(self):
 		pass
 
@@ -126,6 +117,9 @@ class BUI:
 		self.table.create()
 	def append(self,controller):
 		self._append(controller)
+	def clear(self):
+		self.controllers.clear()
+		self.table.create()
 
 	# reserved functions #
 	def focus_on(self,me):

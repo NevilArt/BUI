@@ -20,17 +20,20 @@ from .checkbutton import CheckButton
 from .checkbox import CheckBox
 from .dialog import Dialog
 from .label import Label
+from .listbox import ListBox
 from .numeric import Numeric
 from .progressbar import ProgressBar
 from .radiobuttons import RadioButtons
+from .scrollbar import ScrollBar
 from .slider import Slider
 from .tab import Tab
 from .textbox import TextBox
+from .titlebar import TitleBar
 
 __all__ = ["Box",
 			"Button","Check","CheckBox",
 			"CheckButton",
-			"Dialog","Label","Numeric",
+			"Dialog","Label","ListBox","Numeric",
 			"ProgressBar",
-			"RadioButtons","Slider",
-			"Tab","TextBox"]
+			"RadioButtons","ScrollBar","Slider",
+			"Tab","TextBox","TitleBar"]

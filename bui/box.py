@@ -18,7 +18,7 @@ from .master.graphic import Rectangle
 
 # custom controller -------------------------------------------
 class Box(BUI):
-	def __init__(self,owner=None,pos=[0,0],size=[0,0],text="",column=0,row=0,
+	def __init__(self,owner,pos=[0,0],size=[0,0],text="",column=0,row=0,
 				background=False,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,

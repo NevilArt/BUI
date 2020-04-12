@@ -145,7 +145,7 @@ class Range:
 		if self.min < self.default > self.max:
 			self.default = self.min
 	def copy(self):
-		return Range(self.min,self.maxval,self.default)
+		return Range(self.min,self.max,self.default)
 	def reset(self):
 		self.value = self.default
 	@property

@@ -15,7 +15,7 @@
 from .master.bui import BUI
 
 class Label(BUI):
-	def __init__(self,owner=None,pos=[0,0],size=[0,0],text="",column=0,row=0,
+	def __init__(self,owner,pos=[0,0],size=[0,0],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,

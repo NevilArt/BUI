@@ -13,25 +13,21 @@
 #	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
 from .master.bui import BUI
-from .master.classes import Vector2,Range
-from .master.graphic import Rectangle
-from .button import Button
 from .box import Box
+from .button import Button
 
-class Numeric(BUI):
-	def __init__(self,owner,pos=[0,0],size=[100,30],text="",column=0,row=0,
-				onupdate=None,
+class ScrollBar(BUI):
+	def __init__(self,owner,pos=[0,0],size=[20,20],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,
 				onrightpush=None,onrightrelease=None,
 				onrightclick=None,onmiddleclick=None,
 				onmiddlepush=None,onmiddlerelease=None,
-				# special parameters #
-				minimum=0,maximum=100,default=0):
+				# special argoments #	
+				vertical=True,buttons=False):
 		super().__init__(owner=owner,pos=pos,size=size,text=text,column=column,row=row,
 				background=True,
-				onupdate=onupdate,
 				onmove=onmove,ondrag=ondrag,
 				onpush=onpush,onrelease=onrelease,
 				onclick=onclick,ondoubleclick=ondoubleclick,
@@ -39,41 +35,52 @@ class Numeric(BUI):
 				onrightclick=onrightclick,onmiddleclick=onmiddleclick,
 				onmiddlepush=onmiddlepush,onmiddlerelease=onmiddlerelease)
 		self.pos.auto = True
-
-		self.background.color.set((0.219,0.219,0.219,1),(0.219,0.219,0.219,1),(0.219,0.219,0.219,1))
-
-		self.value = Range(minimum,maximum,default)
+		self.vertical = vertical
+		self.buttons = buttons
+		self.background.color.set((0.3,0.3,0.3,1),(0.3,0.3,0.3,1),(0.3,0.3,0.3,1))
 		self.setup()
 		owner.append(self)
+	
+	def set_size(self):
+		if self.vertical:
+			r = w = self.size.x
+			h = self.owner.size.y - r*2 if self.buttons else self.owner.size.y
+		else:
+			r = h = self.size.y
+			w = self.owner.size.x - r*2 if self.buttons else self.owner.size.x
+		self.box.size.set(w,h)
 
 	def setup(self):
-		w,h = self.size.x-(self.size.y*2),self.size.y
-		self.btn_left = Button(self,size=[h,h],column=1,row=1,text="<",onclick=self.btn_left_clicked)
-		self.btn_left.ondrag = self.numeric_draged
-		self.text_box = Box(self,size=[w,h],column=2,row=1,text="0")
-		self.text_box.caption.align.set(False,False,False,False,True)
-		self.text_box.ondrag = self.numeric_draged
-		self.btn_right = Button(self,size=[h,h],column=3,row=1,text=">",onclick=self.btn_right_clicked)
-		self.btn_right.ondrag = self.numeric_draged
+		if self.vertical:
+			c1,c2,c3, r1,r2,r3 = 1,1,1, 3,2,1 
+			l1,l2 = '^','v'
+			r = self.size.x
+		else:
+			c1,c2,c3, r1,r2,r3 = 1,2,3, 1,1,1
+			l1,l2 = '<','>'
+			r = self.size.y
 
-	def btn_left_clicked(self):
-		self.value.value -= 1
-		self.owner.focus_on(self)
-		if self.onupdate != None:
-			self.onupdate()
+		if self.buttons:
+			Button(self, size=[r,r], text=l1, column=c1, row=r1, onclick=self.start_btn_clicked)		
+			Button(self, size=[r,r], text=l2, column=c3, row=r3, onclick=self.end_btn_clicked)
 
-	def btn_right_clicked(self):
-		self.value.value += 1
-		self.owner.focus_on(self)
-		if self.onupdate != None:
-			self.onupdate()
-
-	def numeric_draged(self,x,y):
-		self.value.value += x
-		if self.onupdate != None:
-			self.onupdate()
+		self.box = Box(self, size=[1,1], column=c2, row=r2, background=True)
+		self.set_size()
+		self.slider_btn = Button(self.box, size=[r,r], ondrag=self.slider_btn_draged)
+		self.slider_btn.pos.auto = False
+		self.slider_btn.moveable = True
+	
+	def start_btn_clicked(self):
+		self.owner.slide(-1)
+	def slider_btn_draged(self,x,y):
+		pass
+	def end_btn_clicked(self):
+		self.owner.slide(1)
 
 	def local_update(self):
-		self.text_box.caption.text = str(self.value.value)
+		self.set_size()
+		if self.vertical:
+			len = self.owner.size
+			l = self.size
 
-__all__ = ["Numeric"]
+__all__ = ["ScrollBar"]

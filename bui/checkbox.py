@@ -18,7 +18,7 @@ from .check import Check
 from .label import Label
 
 class CheckBox(BUI):
-	def __init__(self,owner=None,pos=[0,0],size=[80,30],text="",column=0,row=0,
+	def __init__(self,owner,pos=[0,0],size=[80,30],text="",column=0,row=0,
 				onmove=None,ondrag=None,
 				onpush=None,onrelease=None,
 				onclick=None,ondoubleclick=None,

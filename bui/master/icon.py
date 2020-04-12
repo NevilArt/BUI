@@ -12,7 +12,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ############################################################################
-from .master.classes import Vector2
+from .classes import Vector2,Colors
 
 class Icon:
 	def __init__(self,name):
